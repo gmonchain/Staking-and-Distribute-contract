@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at basescan.org on 2025-06-17
-*/
-
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
 
 
