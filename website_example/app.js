@@ -6,6 +6,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Placeholder for Web3 and contract interaction logic
     async function initApp() {
+        const STAKING_CONTRACT_ADDRESS = '0xYourStakingContractAddress'; // Replace with your Staking Contract Address
+        const DISTRIBUTE_CONTRACT_ADDRESS = '0xYourDistributeContractAddress'; // Replace with your Distribute Contract Address
+
+        const STAKING_CONTRACT_ABI = [
+            // Your Staking Contract ABI here
+            {
+                "inputs": [],
+                "name": "stake",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        const DISTRIBUTE_CONTRACT_ABI = [
+            // Your Distribute Contract ABI here
+            {
+                "inputs": [],
+                "name": "distribute",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
         if (window.ethereum) {
             // Modern dapp browsers...
             window.web3 = new Web3(window.ethereum);
