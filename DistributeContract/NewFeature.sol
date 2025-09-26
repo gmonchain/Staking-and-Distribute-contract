@@ -7,4 +7,6 @@ contract NewFeature {
     function setMyNumber(uint _newNumber) public {
         myNumber = _newNumber;
     }
+
+    address public owner;
 }
