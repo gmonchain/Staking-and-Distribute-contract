@@ -72,6 +72,10 @@ Imagine a project where users stake `USDC` tokens in the `Rebase` contract and r
 
 This flow demonstrates how `Splitter.sol` facilitates the distribution of rewards to stakers, integrated seamlessly with the `Rebase.sol` contract.
 
+### Security Considerations
+
+Smart contracts are highly susceptible to vulnerabilities. Thorough auditing and testing are crucial before deployment to a production environment. Users should always exercise caution and understand the risks involved.
+
 ### StakingContract (Rebase.sol) Usage Example
 
 The `Rebase.sol` contract acts as the primary staking hub, enabling users to stake various ERC20 tokens (and ETH) and receive rebasing tokens (`reTokens`) in return. It also facilitates integration with different applications, such as the `Splitter` contract for reward distribution.
