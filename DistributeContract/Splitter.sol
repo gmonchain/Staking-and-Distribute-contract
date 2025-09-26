@@ -2294,16 +2294,25 @@ contract Splitter is Rebased, Ownable {
         _distributors.add(distributor);
         emit DistributorAdded(distributor);
     }
+
+    /**
+     * @dev Removes an address from the list of authorized distributors. Only callable by the contract owner.
+     * Emits a {DistributorRemoved} event.
+     * @param distributor The address to be removed as a distributor.
+     */
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
         emit DistributorRemoved(distributor);
     }
+
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
+
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
+
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
