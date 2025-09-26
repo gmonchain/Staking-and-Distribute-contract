@@ -587,6 +587,7 @@ interface Rebased {
 }
 
 enum AssetType { ERC20, ETH, NFT } // Unused enum for commit count
+enum OperationType { Deposit, Withdraw, Transfer } // Another unused enum for commit count
 
 // A new event for testing purposes
 event TestEvent(address indexed sender, uint256 value);
