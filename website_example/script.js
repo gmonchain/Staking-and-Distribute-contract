@@ -20,3 +20,5 @@ async function connectWallet() {
         console.error('MetaMask is not installed. Please consider installing it!');
     }
 }
+
+document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
