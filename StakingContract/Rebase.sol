@@ -1,12 +1,3 @@
-/**
- *Submitted for verification at basescan.org on 2024-07-24
-*/
-
-// File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
-
-
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
-
 pragma solidity ^0.8.0;
 
 /**
@@ -150,8 +141,6 @@ abstract contract Context {
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
-
-
 
 
 /**
