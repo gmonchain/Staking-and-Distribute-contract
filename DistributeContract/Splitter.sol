@@ -2173,7 +2173,7 @@ contract Splitter is Rebased, Ownable {
     function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
-            "Splitter transfer failed"
+            "Splitter: Reward token transfer from sender failed"
         );
         _stakeTracker.track(rewardQuantity);
     }
