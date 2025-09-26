@@ -10,6 +10,7 @@ This repository houses the essential smart contracts for a decentralized applica
 - [Security Considerations](#security-considerations)
 - [Development](#development)
 - [License](#license)
+- [Contributing](#contributing)
 
 ## Contracts
 
