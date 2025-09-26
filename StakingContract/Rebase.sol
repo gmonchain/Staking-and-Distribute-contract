@@ -1928,12 +1928,7 @@ contract ReToken is ERC20 {
 
 pragma solidity ^0.8.20;
 
-
-
-
-
-
-
+// This contract manages staking and unstaking of tokens.
 
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
