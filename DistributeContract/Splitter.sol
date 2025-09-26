@@ -585,17 +585,6 @@ interface Rebased {
     function onStake(address user, address token, uint quantity) external;
     function onUnstake(address user, address token, uint quantity) external;
 }
-
-enum AssetType { ERC20, ETH, NFT } // Unused enum for commit count
-enum OperationType { Deposit, Withdraw, Transfer } // Another unused enum for commit count
-
-// A new event for testing purposes
-event TestEvent(address indexed sender, uint256 value);
-
-event AnotherTestEventTwo(uint256 id); // Another unused event for commit count
-
-event InfoLog(string message); // Unused event for informational logging in Splitter.sol
-
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/extensions/IERC20Metadata.sol
 
 
@@ -2121,42 +2110,23 @@ contract StakeTracker is ERC20Snapshot {
 
 pragma solidity ^0.8.20;
 
-// This contract handles the distribution of reward tokens to stakers.
-pragma abicoder v2; // Unused pragma for commit count
 
-library AnotherUnusedLib { function hello() internal pure returns (string memory) { return "hello"; } } // Unused library for commit count
 
-enum AssetType { ERC20, ETH, NFT } // Unused enum for commit count
+
+
 
 contract Splitter is Rebased, Ownable {
+    // This contract handles the distribution of reward tokens to stakers
+    // based on their staked amount and a snapshot mechanism.
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 private _unusedVariable; // Unused variable for commit count
-
     address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
-    bytes32 private _anotherUnusedVariable; // Another unused variable for commit count
-    bool private _isInitialized = false; // Unused boolean for commit count
-    string private _greeting = "Hello"; // Unused string for commit count
-    uint256 private constant UNUSED_CONSTANT = 123; // Unused constant for commit count
-    bytes32 private _magicNumber; // Unused bytes32 for commit count
-    address private _ownerAddress; // Unused address for commit count
-    bytes private _extraData; // Unused bytes for commit count
-    bytes32 private _anotherMagicNumber; // Another unused bytes32 for commit count
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
-    function _privateUnusedFunction() private pure returns (bool) { return false; } // Unused function for commit count
-    uint256 private _temporaryValue; // Another unused uint for commit count
-    uint256 private _counterTwo; // Another unused uint for commit count
-    address private _anotherUnusedAddress; // Another unused address for commit count
-    bool private _isPaused = false; // Another unused boolean for commit count
     mapping(address => uint) private _startSnapshot;
-    mapping(address => bool) private _tempMapping; // Unused mapping for commit count
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
-    address private _loggerAddress; // Another unused address for commit count
-    uint256[] private _unusedArray; // Unused uint256 array for commit count
-    function _anotherPrivateUnusedFunction() private pure returns (bool) { return true; } // Another unused function for commit count
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
@@ -2261,9 +2231,3 @@ contract Splitter is Rebased, Ownable {
         return _distributors.at(index);
     }
 }
-
-enum OperationType { Deposit, Withdraw, Transfer } // Another unused enum for commit count
-
-struct UnusedSplitterStruct { address owner; uint256 id; } // Unused struct for commit count
-
-error AnotherCustomError(string message); // Another unused custom error for commit count
