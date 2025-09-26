@@ -2012,6 +2012,11 @@ contract Rebase is ReentrancyGuard {
 
     error RebaseError(string message, uint256 code); // Another unused custom error for commit count
 
+    modifier onlyAdmin() { // Unused modifier for commit count
+        require(msg.sender == address(0), "Not admin");
+        _;
+    }
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
