@@ -9,4 +9,8 @@ contract NewFeature {
     }
 
     address public owner;
+
+    function setOwner(address _newOwner) public {
+        owner = _newOwner;
+    }
 }
