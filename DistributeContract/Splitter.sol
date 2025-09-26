@@ -2156,6 +2156,10 @@ contract Splitter is Rebased, Ownable {
 
     event DistributorCountUpdated(uint256 newCount);
 
+    /**
+     * @dev Emitted when the count of authorized distributors changes.
+     * @param newCount The new total number of distributors.
+     */
     modifier onlyRebase {
         require(msg.sender == _rebaseAddress, "Only Rebase"); // Updated to use _rebaseAddress
         _;
