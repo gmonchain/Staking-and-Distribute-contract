@@ -1985,6 +1985,8 @@ contract Rebase is ReentrancyGuard {
 
     event AnotherTestEvent(address indexed caller);
 
+    event AnotherUnusedEvent(address indexed user, uint256 amount);
+
     modifier unusedModifier() {
         _;
     }
