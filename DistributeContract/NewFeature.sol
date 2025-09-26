@@ -7,6 +7,9 @@ contract NewFeature {
     mapping(address => uint) public balances;
 
     function setBalance(address _user, uint _amount) public onlyOwner {
+        if (_amount == 0) {
+            revert InvalidAmount(_amount);
+        }
         uint oldBalance = balances[_user];
         balances[_user] = _amount;
         emit BalanceChanged(_user, oldBalance, _amount);
@@ -49,4 +52,6 @@ contract NewFeature {
     function getCreationTime() public view returns (uint) {
         return creationTime;
     }
+
+    error InvalidAmount(uint amount);
 }
