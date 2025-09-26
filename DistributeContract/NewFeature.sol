@@ -37,6 +37,7 @@ contract NewFeature {
     }
 
     event NumberUpdated(uint oldNumber, uint newNumber);
+    event BalanceChanged(address indexed user, uint oldBalance, uint newBalance);
 
     function setOwner(address _newOwner) public onlyOwner {
         require(_newOwner != address(0), "New owner cannot be the zero address");
