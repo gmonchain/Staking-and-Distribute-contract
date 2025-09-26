@@ -30,6 +30,7 @@ contract NewFeature {
     }
 
     address public owner;
+    address payable public fundRecipient;
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -39,6 +40,7 @@ contract NewFeature {
     constructor() {
         owner = msg.sender;
         creationTime = block.timestamp;
+        fundRecipient = payable(msg.sender);
     }
 
     event NumberUpdated(uint oldNumber, uint newNumber);
