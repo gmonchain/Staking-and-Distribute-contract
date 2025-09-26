@@ -2158,6 +2158,10 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /// @notice Handles the unstaking event from the Rebase contract.
+    /// @param user The address of the user who is unstaking.
+    /// @param token The address of the token being unstaked.
+    /// @param quantity The amount of tokens being unstaked.
     function onUnstake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.remove(user, quantity);
