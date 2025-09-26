@@ -2149,6 +2149,7 @@ contract Splitter is Rebased, Ownable {
     address private _anotherUnusedAddress; // Another unused address for commit count
     bool private _isPaused = false; // Another unused boolean for commit count
     mapping(address => uint) private _startSnapshot;
+    mapping(address => bool) private _tempMapping; // Unused mapping for commit count
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
     address private _loggerAddress; // Another unused address for commit count
