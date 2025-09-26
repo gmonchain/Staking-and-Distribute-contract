@@ -2170,6 +2170,13 @@ contract Rebase is ReentrancyGuard {
         emit Unstake(msg.sender, app, token, quantity, forced);
     }
 
+    /**
+     * @dev Internal function to get or create a ReToken contract for a given token.
+     * If a ReToken for the given token does not exist, it clones a new ReToken contract,
+     * initializes it, and stores its address.
+     * @param token The address of the underlying token.
+     * @return The ReToken contract instance.
+     */
     function _getReToken(address token) internal returns (ReToken) {
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
