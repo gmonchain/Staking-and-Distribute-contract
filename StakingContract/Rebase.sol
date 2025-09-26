@@ -2099,6 +2099,14 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
+    /**
+     * @dev Restakes tokens from one application to another.
+     * Unstakes tokens from `fromApp` and stakes them into `toApp`.
+     * @param token The address of the token to restake.
+     * @param quantity The amount of tokens to restake.
+     * @param fromApp The address of the application to unstake from.
+     * @param toApp The address of the application to stake into.
+     */
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
