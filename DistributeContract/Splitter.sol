@@ -2371,6 +2371,13 @@ contract Splitter is Rebased, Ownable {
         return _distributors.values();
     }
     /**
+     * @dev Returns the total number of authorized distributors.
+     * @return The total number of distributors.
+     */
+    function getDistributorCount() external view returns (uint256) {
+        return _distributors.length();
+    }
+    /**
      * @dev Returns the distributor address at a specific index.
      * @param index The index of the distributor in the list.
      * @return The address of the distributor at the specified index.
