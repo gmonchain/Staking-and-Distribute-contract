@@ -33,4 +33,8 @@ contract NewFeature {
         require(_newOwner != address(0), "New owner cannot be the zero address");
         owner = _newOwner;
     }
+
+    function getCreationTime() public view returns (uint) {
+        return creationTime;
+    }
 }
