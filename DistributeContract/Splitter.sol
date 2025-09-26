@@ -2168,6 +2168,8 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /// @notice Allows a distributor to split rewards among stakers.
+    /// @param rewardQuantity The amount of reward tokens to distribute.
     function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
