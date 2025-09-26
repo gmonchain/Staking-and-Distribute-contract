@@ -2124,6 +2124,8 @@ pragma solidity ^0.8.20;
 contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    uint256 private _unusedVariable; // Unused variable for commit count
+
     address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
     address private immutable _rewardToken;
     address private immutable _stakeToken;
