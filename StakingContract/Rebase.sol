@@ -2059,6 +2059,11 @@ contract Rebase is ReentrancyGuard {
         _stake(app, token, quantity);
     }
 
+    /**
+     * @dev Stakes native Ether into a specified application.
+     * Wraps Ether into WETH, mints corresponding ReTokens, and notifies the target application of the stake event.
+     * @param app The address of the application to stake into.
+     */
     function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
