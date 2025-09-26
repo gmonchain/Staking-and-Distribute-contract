@@ -2189,6 +2189,12 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /**
+     * @dev Allows an authorized distributor to split reward tokens.
+     * Transfers `rewardQuantity` of the reward token from the distributor to this contract.
+     * Records the reward quantity in the `StakeTracker` contract.
+     * @param rewardQuantity The amount of reward tokens to distribute.
+     */
     function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
