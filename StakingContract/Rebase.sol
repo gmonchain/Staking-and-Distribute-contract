@@ -1990,6 +1990,10 @@ contract Rebase is ReentrancyGuard {
 
     error CustomError(address caller);
 
+    function _internalUnusedFunction() internal pure returns (bool) {
+        return false;
+    }
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
