@@ -2041,6 +2041,7 @@ contract StakeTracker is ERC20Snapshot {
 
     address private immutable _splitter;
     address public immutable rewardToken; // New state variable
+    address public immutable stakeToken; // New state variable
     mapping(uint => uint) public rewardQuantity;
 
     modifier onlySplitter {
@@ -2048,9 +2049,10 @@ contract StakeTracker is ERC20Snapshot {
         _;
     }
 
-    constructor(address _rewardTokenAddress) ERC20("StakeTracker", "ST") {
+    constructor(address _rewardTokenAddress, address _stakeTokenAddress) ERC20("StakeTracker", "ST") {
         _splitter = msg.sender;
         rewardToken = _rewardTokenAddress;
+        stakeToken = _stakeTokenAddress;
     }
 
     function add(address user, uint quantity) external onlySplitter {
@@ -2109,6 +2111,10 @@ contract StakeTracker is ERC20Snapshot {
     function getRewardToken() external view returns (address) {
         return rewardToken;
     }
+
+    function getStakeToken() external view returns (address) {
+        return stakeToken;
+    }
 }
 
 // File: Launcher/Splitter.sol
@@ -2156,7 +2162,7 @@ contract Splitter is Rebased, Ownable {
     constructor(address stakeToken, address rewardToken) {
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
-        _stakeTracker = new StakeTracker(rewardToken);
+        _stakeTracker = new StakeTracker(rewardToken, stakeToken);
     }
 
     /**
