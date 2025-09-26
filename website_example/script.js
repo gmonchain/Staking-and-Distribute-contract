@@ -88,7 +88,7 @@
                     getSplitterRecipients(); // Refresh list after adding
                 } catch (error) {
                     console.error("Error adding recipient:", error);
-                    alert("Error adding recipient. Check console for details.");
+                    alert(`Error adding recipient: ${error.message || error}. Check console for details.`);
                 }
             }
 
