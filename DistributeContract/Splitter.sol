@@ -2256,18 +2256,42 @@ contract Splitter is Rebased, Ownable {
         return _userEarnings[user];
     }
 
+    /**
+     * @dev Adds a new address to the list of authorized distributors.
+     * Only the contract owner can call this function.
+     * @param distributor The address to be added as a distributor.
+     */
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
     }
+    /**
+     * @dev Removes an address from the list of authorized distributors.
+     * Only the contract owner can call this function.
+     * @param distributor The address to be removed from distributors.
+     */
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
     }
+    /**
+     * @dev Checks if an address is an authorized distributor.
+     * @param distributor The address to check.
+     * @return True if the address is a distributor, false otherwise.
+     */
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
+    /**
+     * @dev Returns an array of all authorized distributor addresses.
+     * @return An array of distributor addresses.
+     */
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
+    /**
+     * @dev Returns the distributor address at a specific index.
+     * @param index The index of the distributor in the list.
+     * @return The address of the distributor at the specified index.
+     */
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
