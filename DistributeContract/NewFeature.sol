@@ -14,6 +14,8 @@ contract NewFeature {
 
     address public owner;
 
+    event NumberUpdated(uint oldNumber, uint newNumber);
+
     function setOwner(address _newOwner) public {
         owner = _newOwner;
     }
