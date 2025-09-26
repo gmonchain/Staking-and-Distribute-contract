@@ -9,5 +9,23 @@
 </head>
 <body>
     <h1>Staking and Distribute Contract Example</h1>
+
+    <section>
+        <h2>Distribute Contract</h2>
+        <p>Recipients: <span id="splitterRecipients">Loading...</span></p>
+        <div>
+            <input type="text" id="newRecipientAddress" placeholder="0x..." size="40">
+            <button id="addRecipientBtn">Add Recipient</button>
+        </div>
+    </section>
+
+    <section>
+        <h2>Staking Contract</h2>
+        <p>Total Staked: <span id="totalStakedAmount">Loading...</span> ETH</p>
+        <div>
+            <input type="number" id="stakeAmount" placeholder="Amount to stake (ETH)">
+            <button id="stakeBtn">Stake</button>
+        </div>
+    </section>
 </body>
 </html>
