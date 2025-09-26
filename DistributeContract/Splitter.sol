@@ -2128,6 +2128,8 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
+    event DistributorAdded(address indexed distributor);
+
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
@@ -2217,6 +2219,7 @@ contract Splitter is Rebased, Ownable {
 
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
+        emit DistributorAdded(distributor);
     }
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
