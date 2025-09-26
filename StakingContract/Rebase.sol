@@ -1986,6 +1986,10 @@ contract Rebase is ReentrancyGuard {
         return true;
     }
 
+    modifier unusedModifier() {
+        _;
+    }
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
