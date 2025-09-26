@@ -1970,6 +1970,7 @@ contract Rebase is ReentrancyGuard {
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
     uint public constant MAX_LIMIT = 100; // Unused constant for commit count
+    uint public constant ANOTHER_UNUSED_CONSTANT = 999; // Another unused constant for commit count
 
     event Stake (
         address indexed user,
