@@ -2128,6 +2128,8 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
+    bool public paused = false; // State variable to control pausing
+
     event Distributed(address indexed distributor, uint256 rewardQuantity, uint256 snapshotId);
 
     event Claimed(address indexed user, address indexed to, uint256 quantity);
