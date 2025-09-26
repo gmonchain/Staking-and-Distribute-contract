@@ -2196,7 +2196,7 @@ contract Splitter is Rebased, Ownable {
             uint quantity = _stakeTracker.calc(msg.sender, snapshotIds);
             if (quantity > 0) {
                 _userEarnings[msg.sender] += quantity;
-                require(IERC20(_rewardToken).transfer(to, quantity), "Unable to transfer token");
+                require(IERC20(_rewardToken).transfer(to, quantity), "Splitter: Unable to transfer reward token");
             }
         }
     }
