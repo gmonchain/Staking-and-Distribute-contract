@@ -2279,4 +2279,9 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
         require(newRebaseAddress != address(0), "Rebase address cannot be the zero address");
         _rebase = newRebaseAddress;
     }
+
+    function setStakeTracker(address newStakeTracker) public onlyOwner {
+        require(newStakeTracker != address(0), "StakeTracker address cannot be the zero address");
+        _stakeTracker = StakeTracker(newStakeTracker);
+    }
 }
