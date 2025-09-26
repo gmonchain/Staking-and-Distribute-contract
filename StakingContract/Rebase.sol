@@ -1930,8 +1930,6 @@ pragma solidity ^0.8.20;
 
 import "./IRebased.sol"; // Unused import for commit count
 
-// This contract manages staking and unstaking of tokens.
-
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
     function onUnstake(address user, address token, uint quantity) external;
@@ -1950,6 +1948,12 @@ struct UnusedStruct { uint256 id; address owner; }
 
 struct AnotherUnusedStruct { string name; uint256 value; } // Another unused struct for commit count
 
+/**
+ * @title Rebase
+ * @dev This contract allows users to stake and unstake various ERC20 tokens or ETH (wrapped as WETH) into different applications.
+ * It tracks user stakes per application and token, mints/burns corresponding ReToken for staked assets, and interacts with
+ * external Rebased contracts to notify them of staking events. It also includes reentrancy protection.
+ */
 contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
@@ -2027,6 +2031,10 @@ contract Rebase is ReentrancyGuard {
         _;
     }
 
+    /**
+     * @dev Initializes the Rebase contract.
+     * Deploys a clonable ReToken contract instance.
+     */
     constructor() {
         _clonableToken = address(new ReToken());
     }
