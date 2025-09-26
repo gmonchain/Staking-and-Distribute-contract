@@ -165,4 +165,4 @@ Contributions are welcome! Please feel free to open issues or submit pull reques
 ### External Links
 
 - [Project Website](https://example.com) (Coming Soon)
-- [Block Explorer](https://etherscan.io/address/0x...)
+- [Block Explorer](https://etherscan.io/address/0x...) (Example address, replace with actual deployment)
