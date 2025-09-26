@@ -109,3 +109,10 @@ You can check your unclaimed earnings before claiming:
 ```solidity
 Splitter.getUnclaimedEarnings(YOUR_ADDRESS, MAX_SNAPSHOTS_TO_PROCESS);
 ```
+
+### 4. Pause/Unpause Mechanism for Reward Distribution
+
+This new feature introduces the ability for the contract owner to temporarily pause and unpause reward distribution within the `Splitter` contract. This can be crucial for maintenance, upgrades, or in emergency situations to prevent unexpected token transfers.
+
+*   **`pause()`:** The owner can call this function to halt all reward distribution (`split`) and claiming (`claim`) operations.
+*   **`unpause()`:** The owner can call this function to resume reward distribution and claiming operations.
