@@ -2130,6 +2130,8 @@ contract Splitter is Rebased, Ownable {
 
     event Distributed(address indexed distributor, uint256 rewardQuantity, uint256 snapshotId);
 
+    event Claimed(address indexed user, address indexed to, uint256 quantity);
+
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
@@ -2186,6 +2188,7 @@ contract Splitter is Rebased, Ownable {
             if (quantity > 0) {
                 _userEarnings[msg.sender] += quantity;
                 require(IERC20(_rewardToken).transfer(to, quantity), "Unable to transfer token");
+                emit Claimed(msg.sender, to, quantity);
             }
         }
     }
