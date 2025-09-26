@@ -1988,6 +1988,8 @@ contract Rebase is ReentrancyGuard {
         _;
     }
 
+    error CustomError(address caller);
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
