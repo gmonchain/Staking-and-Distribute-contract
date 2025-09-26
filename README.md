@@ -161,3 +161,8 @@ Contributions are welcome! Please feel free to open issues or submit pull reques
 ### Acknowledgements
 
 - OpenZeppelin for foundational smart contract libraries.
+
+### External Links
+
+- [Project Website](https://example.com) (Coming Soon)
+- [Block Explorer](https://etherscan.io/address/0x...)
