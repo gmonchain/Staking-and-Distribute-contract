@@ -41,6 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Accounts now exposed
                 const accounts = await window.web3.eth.getAccounts();
                 console.log('Accounts:', accounts);
+
+                const stakingContract = new window.web3.eth.Contract(STAKING_CONTRACT_ABI, STAKING_CONTRACT_ADDRESS);
+                const distributeContract = new window.web3.eth.Contract(DISTRIBUTE_CONTRACT_ABI, DISTRIBUTE_CONTRACT_ADDRESS);
+
+                console.log('Staking Contract:', stakingContract);
+                console.log('Distribute Contract:', distributeContract);
+
+                app.innerHTML += '<p>Contracts loaded.</p>';
+
             } catch (error) {
                 // User denied account access...
                 console.error("User denied account access");
