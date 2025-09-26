@@ -5,7 +5,9 @@ contract NewFeature {
     // Initial content for the new feature contract
 
     function setMyNumber(uint _newNumber) public {
+        uint oldNumber = myNumber;
         myNumber = _newNumber;
+        emit NumberUpdated(oldNumber, newNumber);
     }
 
     function updateMyNumber(uint _numberToSet) public {
