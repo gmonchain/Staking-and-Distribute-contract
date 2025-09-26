@@ -2158,6 +2158,7 @@ contract Splitter is Rebased, Ownable {
     }
 
     function onStake(address user, address token, uint quantity) external onlyRebase {
+        require(!paused, "Contract is paused");
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
             if (_startSnapshot[user] == 0) {
