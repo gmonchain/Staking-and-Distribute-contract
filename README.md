@@ -13,6 +13,7 @@ This repository houses the essential smart contracts for a decentralized applica
 - [Development](#development)
 - [License](#license)
 - [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
 
 ## Contracts
 
