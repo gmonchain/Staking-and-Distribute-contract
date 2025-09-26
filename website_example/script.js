@@ -37,15 +37,49 @@ window.addEventListener('load', async () => {
         console.log("Distribute Contract:", distributeContract);
         console.log("Staking Contract:", stakingContract);
 
+        const splitterRecipientsSpan = document.getElementById('splitterRecipients');
+        const totalStakedAmountSpan = document.getElementById('totalStakedAmount');
+        const newRecipientAddressInput = document.getElementById('newRecipientAddress');
+        const addRecipientBtn = document.getElementById('addRecipientBtn');
+        const stakeAmountInput = document.getElementById('stakeAmount');
+        const stakeBtn = document.getElementById('stakeBtn');
+
+        let accounts;
+
+        // Get accounts
+        web3.eth.getAccounts().then(_accounts => {
+            accounts = _accounts;
+            console.log("Accounts:", accounts);
+        });
+
         // --- Distribute Contract Functions ---
         async function getSplitterRecipients() {
             try {
                 const recipients = await distributeContract.methods.getRecipients().call();
                 console.log("Distribute Contract Recipients:", recipients);
+                splitterRecipientsSpan.textContent = recipients.length > 0 ? recipients.join(', ') : 'None';
                 return recipients;
             } catch (error) {
                 console.error("Error getting distribute contract recipients:", error);
+                splitterRecipientsSpan.textContent = 'Error loading recipients.';
                 return [];
+            }
+        }
+
+        async function addRecipient() {
+            const recipientAddress = newRecipientAddressInput.value;
+            if (!web3.utils.isAddress(recipientAddress)) {
+                alert("Please enter a valid Ethereum address.");
+                return;
+            }
+            try {
+                await distributeContract.methods.addRecipient(recipientAddress).send({ from: accounts[0] });
+                alert("Recipient added successfully!");
+                newRecipientAddressInput.value = '';
+                getSplitterRecipients(); // Refresh list
+            } catch (error) {
+                console.error("Error adding recipient:", error);
+                alert("Error adding recipient. Check console for details.");
             }
         }
 
@@ -54,12 +88,36 @@ window.addEventListener('load', async () => {
             try {
                 const totalStaked = await stakingContract.methods.getTotalStaked().call();
                 console.log("Total Staked Amount:", web3.utils.fromWei(totalStaked, 'ether'));
+                totalStakedAmountSpan.textContent = web3.utils.fromWei(totalStaked, 'ether');
                 return web3.utils.fromWei(totalStaked, 'ether');
             } catch (error) {
                 console.error("Error getting total staked amount:", error);
+                totalStakedAmountSpan.textContent = 'Error loading total staked.';
                 return '0';
             }
         }
+
+        async function stake() {
+            const amount = stakeAmountInput.value;
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount to stake.");
+                return;
+            }
+            const amountInWei = web3.utils.toWei(amount, 'ether');
+            try {
+                await stakingContract.methods.stake(amountInWei).send({ from: accounts[0], value: amountInWei });
+                alert("Staked successfully!");
+                stakeAmountInput.value = '';
+                getTotalStakedAmount(); // Refresh amount
+            } catch (error) {
+                console.error("Error staking:", error);
+                alert("Error staking. Check console for details.");
+            }
+        }
+
+        // Event Listeners
+        addRecipientBtn.addEventListener('click', addRecipient);
+        stakeBtn.addEventListener('click', stake);
 
         // Call read functions on load
         getSplitterRecipients();
