@@ -7,6 +7,9 @@ This repository houses the essential smart contracts for a decentralized applica
 - [Contracts](#contracts)
 - [DistributeContract (Splitter.sol) Usage Example](#distributecontract-splittersol-usage-example)
 - [StakingContract (Rebase.sol) Usage Example](#stakingcontract-rebase.sol-usage-example)
+- [Security Considerations](#security-considerations)
+- [Development](#development)
+- [License](#license)
 
 ## Contracts
 
