@@ -2181,6 +2181,7 @@ contract Splitter is Rebased, Ownable {
      * @param rewardQuantity The amount of reward tokens to distribute.
      */
     function split(uint rewardQuantity) external onlyDistributor {
+        require(!paused, "Contract is paused");
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
             "Splitter transfer failed"
