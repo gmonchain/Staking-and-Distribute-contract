@@ -137,3 +137,8 @@ This example illustrates the core functionalities of `Rebase.sol` for managing t
 ### Development
 
 To set up the development environment, ensure you have Node.js and Hardhat installed. Follow typical Hardhat project setup for compilation and testing.
+
+### License
+
+This project is licensed under the MIT License.
+
