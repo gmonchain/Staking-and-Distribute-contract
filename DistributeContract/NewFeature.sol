@@ -16,6 +16,10 @@ contract NewFeature {
 
     address public owner;
 
+    constructor() {
+        owner = msg.sender;
+    }
+
     event NumberUpdated(uint oldNumber, uint newNumber);
 
     function setOwner(address _newOwner) public {
