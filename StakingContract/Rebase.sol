@@ -2039,6 +2039,10 @@ contract Rebase is ReentrancyGuard {
         _clonableToken = address(new ReToken());
     }
 
+    /**
+     * @dev Fallback function to receive Ether.
+     * Allows the contract to receive native Ether, which is then wrapped into WETH.
+     */
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
