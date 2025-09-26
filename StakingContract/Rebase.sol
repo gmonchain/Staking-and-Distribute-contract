@@ -2005,6 +2005,8 @@ contract Rebase is ReentrancyGuard {
         return 0;
     }
 
+    event RebaseStatus(address indexed sender, bool active); // Unused event for commit count
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
