@@ -38,29 +38,48 @@
         button:hover {
             background-color: #0056b3;
         }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .contract-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .contract-section h2 {
+            margin-top: 0;
+        }
+        .input-group {
+            margin-top: 15px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Staking and Distribute Contract Example</h1>
+    <div class="container">
+        <h1>Staking and Distribute Contract Example</h1>
 
-    <section>
-        <h2>Distribute Contract</h2>
-        <p>Recipients: <span id="splitterRecipients">Loading...</span></p>
-        <div>
-            <input type="text" id="newRecipientAddress" placeholder="0x..." size="40">
-            <button id="addRecipientBtn">Add Recipient</button>
-        </div>
-    </section>
+        <section class="contract-section">
+            <h2>Distribute Contract</h2>
+            <p>Recipients: <span id="splitterRecipients">Loading...</span></p>
+            <div class="input-group">
+                <input type="text" id="newRecipientAddress" placeholder="0x..." size="40">
+                <button id="addRecipientBtn">Add Recipient</button>
+            </div>
+        </section>
 
-    <section>
-        <h2>Staking Contract</h2>
-        <p>Total Staked: <span id="totalStakedAmount">Loading...</span> ETH</p>
-        <div>
-            <input type="number" id="stakeAmount" placeholder="Amount to stake (ETH)">
-            <button id="stakeBtn">Stake</button>
-        </div>
-    </section>
+        <section class="contract-section">
+            <h2>Staking Contract</h2>
+            <p>Total Staked: <span id="totalStakedAmount">Loading...</span> ETH</p>
+            <div class="input-group">
+                <input type="number" id="stakeAmount" placeholder="Amount to stake (ETH)">
+                <button id="stakeBtn">Stake</button>
+            </div>
+        </section>
+    </div>
 </body>
 </html>
