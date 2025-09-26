@@ -585,6 +585,10 @@ interface Rebased {
     function onStake(address user, address token, uint quantity) external;
     function onUnstake(address user, address token, uint quantity) external;
 }
+
+// A new event for testing purposes
+event TestEvent(address indexed sender, uint256 value);
+
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/extensions/IERC20Metadata.sol
 
 
