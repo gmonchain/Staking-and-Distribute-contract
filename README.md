@@ -1,5 +1,7 @@
 # Staking and Distribute Contracts
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This repository houses the essential smart contracts for a decentralized application focused on token staking and distribution. It includes two primary contracts: `Splitter.sol` for managing token distribution and `Rebase.sol` for handling staking and rebase mechanics.
 
 ## Table of Contents
@@ -140,7 +142,7 @@ This example illustrates the core functionalities of `Rebase.sol` for managing t
 
 ### Development
 
-To set up the development environment, ensure you have Node.js and Hardhat installed. Follow typical Hardhat project setup for compilation and testing.
+To set up the development environment, ensure you have Node.js and Hardhat installed. Follow typical Hardhat project setup for compilation and testing. Comprehensive tests are located in the `test/` directory.
 
 ### License
 
@@ -149,4 +151,3 @@ This project is licensed under the MIT License.
 ### Contributing
 
 Contributions are welcome! Please feel free to open issues or submit pull requests.
-
