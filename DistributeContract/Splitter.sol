@@ -2133,6 +2133,7 @@ contract Splitter is Rebased, Ownable {
     string private _greeting = "Hello"; // Unused string for commit count
     uint256 private constant UNUSED_CONSTANT = 123; // Unused constant for commit count
     bytes32 private _magicNumber; // Unused bytes32 for commit count
+    address private _ownerAddress; // Unused address for commit count
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
