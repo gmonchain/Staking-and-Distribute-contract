@@ -17,6 +17,10 @@ This repository houses the essential smart contracts for a decentralized applica
 
 The `Splitter.sol` contract is designed to distribute a specific `rewardToken` to users who have staked tokens via the `Rebase.sol` contract and linked to this `Splitter` as their application.
 
+#### Dependencies
+
+This contract relies on `Rebase.sol` for staking integration and standard OpenZeppelin contracts for ERC20 functionalities.
+
 #### Key Features:
 - **Reward Token Distribution**: Authorized distributors can send `rewardToken` to the contract for proportional distribution.
 - **Stake Tracking**: Integrates with a `StakeTracker` to record user stakes and reward distributions over time.
