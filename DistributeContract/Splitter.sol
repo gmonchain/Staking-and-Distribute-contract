@@ -2159,6 +2159,14 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker = new StakeTracker();
     }
 
+    /**
+     * @dev Handles the staking of tokens. Called by the Rebase contract.
+     * Mints `quantity` StakeTracker tokens to the user.
+     * Records the starting snapshot ID for the user if it's their first stake.
+     * @param user The address of the staker.
+     * @param token The address of the token being staked.
+     * @param quantity The amount of tokens staked.
+     */
     function onStake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
