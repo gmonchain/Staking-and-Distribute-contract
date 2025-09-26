@@ -1,0 +1,6 @@
+pragma solidity ^0.8.20;
+
+contract NewFeature {
+    uint public myNumber;
+    // Initial content for the new feature contract
+}
