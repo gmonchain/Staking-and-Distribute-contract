@@ -2163,6 +2163,12 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /**
+     * @dev Allows a distributor to deposit reward tokens into the contract.
+     * These tokens are then recorded via snapshots for future distribution to stakers.
+     * Only callable by an authorized distributor.
+     * @param rewardQuantity The amount of reward tokens to distribute.
+     */
     function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
