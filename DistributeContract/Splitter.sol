@@ -2314,10 +2314,18 @@ contract Splitter is Rebased, Ownable {
         return _distributors.contains(distributor);
     }
 
+    /**
+     * @dev Returns an array of all authorized distributor addresses.
+     * @return An array of distributor addresses.
+     */
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
-
+    /**
+     * @dev Returns the distributor address at a given index.
+     * @param index The index of the distributor to retrieve.
+     * @return The address of the distributor at the specified index.
+     */
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
