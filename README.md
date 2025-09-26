@@ -14,20 +14,20 @@ The `Rebase` contract serves as the primary staking hub. It allows users to stak
 *   **Unstaking Tokens:** Users can unstake their tokens, which involves burning the `reTokens` and transferring the original staked tokens back to the user. Similarly, the `onUnstake` function on the `app` contract is called.
 *   **Restaking Tokens:** Users can transfer their staked position from one application to another without fully unstaking and restaking.
 
-### 2. Splitter Contract (`Splitter.sol`)
+### 2. Splitter Contract (`DistributeContract/Splitter.sol`)
 
 The `Splitter` contract is responsible for receiving reward tokens and distributing them proportionally to users who have staked through the `Rebase` contract and linked to this `Splitter` as their `app`.
 
 *   **Reward Token:** The `Splitter` contract is initialized with a specific `rewardToken` (an ERC20 token) that it will distribute.
 *   **Distributors:** Only authorized `distributors` (addresses added by the contract owner) can send `rewardToken` to the `Splitter` contract for distribution.
-*   **`StakeTracker` Integration:** The `Splitter` contract uses a `StakeTracker` contract to keep track of user stakes and reward distributions over time.
-    *   When a `distributor` sends `rewardToken` via the `split` function, the `Splitter` records this reward in the `StakeTracker` by creating a "snapshot." This snapshot captures the total supply of staked tokens at that moment and the amount of reward distributed.
-    *   When users stake or unstake via the `Rebase` contract, the `Splitter` (as an `app` of `Rebase`) receives `onStake` and `onUnstake` calls, and updates the `StakeTracker` accordingly.
+*   **`StakeTracker` Integration:** The `Splitter` contract uses a `StakeTracker` contract (defined internally) to keep track of user stakes and reward distributions over time.
+    *   When a `distributor` sends `rewardToken` via the `split` function, the `Splitter` records this reward in the internal `StakeTracker` by creating a "snapshot." This snapshot captures the total supply of staked tokens at that moment and the amount of reward distributed.
+    *   When users stake or unstake via the `Rebase` contract, the `Splitter` (as an `app` of `Rebase`) receives `onStake` and `onUnstake` calls, and updates the internal `StakeTracker` accordingly.
 *   **Claiming Rewards:** Users can `claim` their accumulated rewards. The `claim` function calculates a user's share of rewards based on their proportional stake at each snapshot when rewards were distributed. It then transfers the `rewardToken` to the user. To prevent excessive gas usage, users can specify a `limit` on the number of snapshots considered in a single claim transaction.
 
-### 3. StakeTracker Contract (`StakeTracker.sol`)
+### 3. StakeTracker Contract (Internal to `DistributeContract/Splitter.sol`)
 
-The `StakeTracker` contract is a specialized ERC20Snapshot token that acts as a ledger for tracking user stakes and reward allocations.
+The `StakeTracker` contract is a specialized `ERC20Snapshot` token that acts as a ledger for tracking user stakes and reward allocations. It is defined within the `DistributeContract/Splitter.sol` file.
 
 *   **ERC20Snapshot:** It extends OpenZeppelin's `ERC20Snapshot`, allowing it to record balances and total supply at specific points in time (snapshots).
 *   **Tracking Rewards:** It maps snapshot IDs to the `rewardQuantity` received by the `Splitter` at that snapshot.
@@ -109,48 +109,3 @@ You can check your unclaimed earnings before claiming:
 ```solidity
 Splitter.getUnclaimedEarnings(YOUR_ADDRESS, MAX_SNAPSHOTS_TO_PROCESS);
 ```
-
-### 4. Pause/Unpause Mechanism for Reward Distribution
-
-This new feature introduces the ability for the contract owner to temporarily pause and unpause reward distribution within the `Splitter` contract. This can be crucial for maintenance, upgrades, or in emergency situations to prevent unexpected token transfers.
-
-*   **`pause()`:** The owner can call this function to halt all reward distribution (`split`) and claiming (`claim`) operations.
-*   **`unpause()`:** The owner can call this function to resume reward distribution and claiming operations.
-
-### 5. Reward Fee Mechanism
-
-To support operational costs or other initiatives, a configurable fee mechanism has been added to the `Splitter` contract. A percentage of distributed rewards can be automatically deducted and sent to a designated fee recipient.
-
-*   **`_feePercentage`:** A state variable (e.g., `100` for 1%, `500` for 5%) defining the percentage of rewards to be taken as a fee. The value is out of 10000 (meaning 100% = 10000).
-*   **`_feeRecipient`:** The address that will receive the deducted fees.
-*   **`setFeePercentage(uint256 newFeePercentage)`:** Only the owner can call this to update the fee percentage. The new percentage cannot exceed 10000 (100%).
-*   **`setFeeRecipient(address newFeeRecipient)`:** Only the owner can call this to set or update the fee recipient address.
-*   **Fee Deduction in `split()`:** When rewards are split, the contract automatically calculates the fee based on `_feePercentage` and transfers it to `_feeRecipient` before distributing the remaining rewards.
-
-### 6. Role-Based Access Control for Distributors
-
-The contract now uses OpenZeppelin's `AccessControlEnumerable` to manage distributor permissions, enhancing security and flexibility. Instead of a simple whitelist, distributors are assigned a `DISTRIBUTOR_ROLE`.
-
-*   **`DEFAULT_ADMIN_ROLE`:** Automatically granted to the contract deployer, allowing management of other roles.
-*   **`DISTRIBUTOR_ROLE`:** This role is required to call the `split` function.
-*   **`addDistributor(address distributor)`:** An account with `DEFAULT_ADMIN_ROLE` can grant the `DISTRIBUTOR_ROLE` to a new address.
-*   **`removeDistributor(address distributor)`:** An account with `DEFAULT_ADMIN_ROLE` can revoke the `DISTRIBUTOR_ROLE` from an address.
-*   **`getDistributors()`:** Returns an array of all addresses currently holding the `DISTRIBUTOR_ROLE`.
-
-### 7. Emergency Withdrawal
-
-A new function has been added to allow the contract owner to safely withdraw any ERC20 tokens that may have been accidentally sent to the contract address. This prevents tokens from being permanently locked.
-
-*   **`emergencyWithdraw(address token, uint256 amount)`:** Only the contract owner can call this function to transfer a specified `amount` of a particular `token` from the contract to the owner's address.
-
-### 8. Update Rebase Address
-
-This function allows the contract owner to update the address of the `Rebase` contract that interacts with the `Splitter` contract. This is useful for upgrades or changes in the `Rebase` contract deployment.
-
-*   **`setRebaseAddress(address newRebaseAddress)`:** Only the contract owner can call this function to set a new `Rebase` contract address. The new address cannot be the zero address.
-
-### 9. Update StakeTracker Address
-
-This function provides the capability to update the `StakeTracker` contract address, allowing for flexibility in managing the staking mechanism. This can be useful for upgrades or migrations of the `StakeTracker` contract.
-
-*   **`setStakeTracker(address newStakeTracker)`:** Only the contract owner can call this function to set a new `StakeTracker` contract address. The new address cannot be the zero address.
