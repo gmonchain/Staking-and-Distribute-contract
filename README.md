@@ -116,3 +116,13 @@ This new feature introduces the ability for the contract owner to temporarily pa
 
 *   **`pause()`:** The owner can call this function to halt all reward distribution (`split`) and claiming (`claim`) operations.
 *   **`unpause()`:** The owner can call this function to resume reward distribution and claiming operations.
+
+### 5. Reward Fee Mechanism
+
+To support operational costs or other initiatives, a configurable fee mechanism has been added to the `Splitter` contract. A percentage of distributed rewards can be automatically deducted and sent to a designated fee recipient.
+
+*   **`_feePercentage`:** A state variable (e.g., `100` for 1%, `500` for 5%) defining the percentage of rewards to be taken as a fee. The value is out of 10000 (meaning 100% = 10000).
+*   **`_feeRecipient`:** The address that will receive the deducted fees.
+*   **`setFeePercentage(uint256 newFeePercentage)`:** Only the owner can call this to update the fee percentage. The new percentage cannot exceed 10000 (100%).
+*   **`setFeeRecipient(address newFeeRecipient)`:** Only the owner can call this to set or update the fee recipient address.
+*   **Fee Deduction in `split()`:** When `rewardToken` is distributed via the `split` function, the calculated `feeAmount` is transferred to the `_feeRecipient` before the remaining rewards are tracked for distribution to stakers.
