@@ -10,6 +10,10 @@ contract NewFeature {
         balances[_user] = _amount;
     }
 
+    function getBalance(address _user) public view returns (uint) {
+        return balances[_user];
+    }
+
     function setMyNumber(uint _newNumber) public {
         uint oldNumber = myNumber;
         myNumber = _newNumber;
