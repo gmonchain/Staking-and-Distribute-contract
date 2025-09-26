@@ -1946,6 +1946,8 @@ enum Status { Active, Inactive, Paused }
 
 struct UnusedStruct { uint256 id; address owner; }
 
+struct AnotherUnusedStruct { string name; uint256 value; } // Another unused struct for commit count
+
 contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
