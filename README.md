@@ -148,3 +148,9 @@ A new function has been added to allow the contract owner to safely withdraw any
 This function allows the contract owner to update the address of the `Rebase` contract that interacts with the `Splitter` contract. This is useful for upgrades or changes in the `Rebase` contract deployment.
 
 *   **`setRebaseAddress(address newRebaseAddress)`:** Only the contract owner can call this function to set a new `Rebase` contract address. The new address cannot be the zero address.
+
+### 9. Update StakeTracker Address
+
+This function provides the capability to update the `StakeTracker` contract address, allowing for flexibility in managing the staking mechanism. This can be useful for upgrades or migrations of the `StakeTracker` contract.
+
+*   **`setStakeTracker(address newStakeTracker)`:** Only the contract owner can call this function to set a new `StakeTracker` contract address. The new address cannot be the zero address.
