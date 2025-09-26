@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
 
 
@@ -2168,6 +2169,14 @@ contract Splitter is Rebased, Ownable, Pausable {
             "Splitter transfer failed"
         );
         _stakeTracker.track(rewardQuantity);
+
+        if (_feePercentage > 0 && _feeRecipient != address(0)) {
+            uint256 feeAmount = rewardQuantity.mul(_feePercentage).div(10000); // Assuming 10000 = 100%
+            if (feeAmount > 0) {
+                require(IERC20(_rewardToken).transfer(_feeRecipient, feeAmount), "Fee transfer failed");
+                rewardQuantity = rewardQuantity.sub(feeAmount);
+            }
+        }
     }
 
     function claim(address to, uint limit) external whenNotPaused {
@@ -2232,6 +2241,16 @@ contract Splitter is Rebased, Ownable, Pausable {
     }
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
+    }
+
+    function setFeePercentage(uint256 newFeePercentage) public onlyOwner {
+        require(newFeePercentage <= 10000, "Fee percentage cannot exceed 100%"); // Assuming 10000 = 100%
+        _feePercentage = newFeePercentage;
+    }
+
+    function setFeeRecipient(address newFeeRecipient) public onlyOwner {
+        require(newFeeRecipient != address(0), "Fee recipient cannot be the zero address");
+        _feeRecipient = newFeeRecipient;
     }
 
     function pause() public onlyOwner {
