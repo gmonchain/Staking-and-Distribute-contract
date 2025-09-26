@@ -2122,10 +2122,9 @@ pragma solidity ^0.8.20;
 // This contract handles the distribution of reward tokens to stakers.
 pragma abicoder v2; // Unused pragma for commit count
 
+library AnotherUnusedLib { function hello() internal pure returns (string memory) { return "hello"; } } // Unused library for commit count
 
-
-
-
+enum AssetType { ERC20, ETH, NFT } // Unused enum for commit count
 
 contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
