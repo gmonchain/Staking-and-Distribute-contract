@@ -2252,15 +2252,35 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /**
+     * @dev Returns the address of the reward token.
+     * @return The address of the reward token.
+     */
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
+
+    /**
+     * @dev Returns the address of the stake token.
+     * @return The address of the stake token.
+     */
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
+
+    /**
+     * @dev Returns the address of the StakeTracker contract.
+     * @return The address of the StakeTracker contract.
+     */
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
+
+    /**
+     * @dev Returns the total claimed earnings for a specific user.
+     * @param user The address of the user to query.
+     * @return The total claimed earnings for the user.
+     */
     function getClaimedEarnings(address user) external view returns (uint) {
         return _userEarnings[user];
     }
