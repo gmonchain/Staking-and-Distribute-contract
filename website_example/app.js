@@ -1,0 +1,36 @@
+// app.js
+
+document.addEventListener('DOMContentLoaded', () => {
+    const app = document.getElementById('app');
+    app.innerHTML = '<p>Loading Web3 and smart contract...</p>';
+
+    // Placeholder for Web3 and contract interaction logic
+    async function initApp() {
+        if (window.ethereum) {
+            // Modern dapp browsers...
+            window.web3 = new Web3(window.ethereum);
+            try {
+                // Request account access if needed
+                await window.ethereum.enable();
+                app.innerHTML = '<p>Web3 enabled. Connect to contract here.</p>';
+                // Accounts now exposed
+                const accounts = await window.web3.eth.getAccounts();
+                console.log('Accounts:', accounts);
+            } catch (error) {
+                // User denied account access...
+                console.error("User denied account access");
+                app.innerHTML = '<p>Please connect to MetaMask.</p>';
+            }
+        } else if (window.web3) {
+            // Legacy dapp browsers...
+            window.web3 = new Web3(window.web3.currentProvider);
+            app.innerHTML = '<p>Legacy Web3 detected. Connect to contract here.</p>';
+        } else {
+            // Non-dapp browsers...
+            console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+            app.innerHTML = '<p>Non-Ethereum browser detected. Please install MetaMask.</p>';
+        }
+    }
+
+    initApp();
+});
