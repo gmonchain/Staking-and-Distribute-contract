@@ -1940,6 +1940,8 @@ interface WETH {
     function withdraw(uint amount) external;
 }
 
+enum Status { Active, Inactive, Paused }
+
 contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
