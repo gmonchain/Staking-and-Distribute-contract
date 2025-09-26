@@ -6,6 +6,10 @@ contract NewFeature {
 
     mapping(address => uint) public balances;
 
+    function setBalance(address _user, uint _amount) public onlyOwner {
+        balances[_user] = _amount;
+    }
+
     function setMyNumber(uint _newNumber) public {
         uint oldNumber = myNumber;
         myNumber = _newNumber;
