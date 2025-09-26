@@ -2295,6 +2295,10 @@ contract Splitter is Rebased, Ownable {
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
+    /**
+     * @dev Returns the address of the Rebase contract.
+     * @return The address of the Rebase contract.
+     */
     function getRebase() external pure returns (address) {
         return _rebase;
     }
