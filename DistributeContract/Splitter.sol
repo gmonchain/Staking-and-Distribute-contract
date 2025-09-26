@@ -2285,6 +2285,11 @@ contract Splitter is Rebased, Ownable {
         return _userEarnings[user];
     }
 
+    /**
+     * @dev Adds an address to the list of authorized distributors. Only callable by the contract owner.
+     * Emits a {DistributorAdded} event.
+     * @param distributor The address to be added as a distributor.
+     */
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
         emit DistributorAdded(distributor);
