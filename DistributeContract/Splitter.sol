@@ -2150,6 +2150,13 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker = new StakeTracker();
     }
 
+    /**
+     * @dev Toggles the paused state of the contract. Only the contract owner can call this function.
+     */
+    function togglePause() public onlyOwner {
+        paused = !paused;
+    }
+
     function onStake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
