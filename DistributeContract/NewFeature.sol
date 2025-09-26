@@ -12,6 +12,11 @@ contract NewFeature {
 
     mapping(address => UserData) public users;
 
+    function registerUser(uint _id, string memory _name) public {
+        require(users[msg.sender].id == 0, "User already registered");
+        users[msg.sender] = UserData(_id, _name, true);
+    }
+
     mapping(address => uint) public balances;
 
     function setBalance(address _user, uint _amount) public onlyOwner {
