@@ -2159,6 +2159,11 @@ contract Splitter is Rebased, Ownable {
         _;
     }
 
+    /**
+     * @dev Constructs the Splitter contract.
+     * @param rewardToken_ The address of the reward token (ERC20).
+     * @param stakeToken_ The address of the stake token (ERC20).
+     */
     constructor(address rewardToken_, address stakeToken_) Rebased(_rebase) {
         _rewardToken = rewardToken_;
         _stakeToken = stakeToken_;
