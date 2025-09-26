@@ -2159,10 +2159,10 @@ contract Splitter is Rebased, Ownable {
         _;
     }
 
-    constructor(address stakeToken, address rewardToken) {
-        _rewardToken = rewardToken;
-        _stakeToken = stakeToken;
-        _stakeTracker = new StakeTracker(rewardToken, stakeToken);
+    constructor(address rewardToken_, address stakeToken_) Rebased(_rebase) {
+        _rewardToken = rewardToken_;
+        _stakeToken = stakeToken_;
+        _stakeTracker = new StakeTracker(_rewardToken, _stakeToken); // Updated constructor call
     }
 
     /**
