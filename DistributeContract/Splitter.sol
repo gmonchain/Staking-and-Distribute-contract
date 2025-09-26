@@ -2131,6 +2131,7 @@ contract Splitter is Rebased, Ownable, Pausable {
     EnumerableSet.AddressSet private _distributors;
     uint256 private _feePercentage;
     address private _feeRecipient;
+    EnumerableSet.AddressSet private _whitelistedDistributors;
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
