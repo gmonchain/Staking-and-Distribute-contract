@@ -76,6 +76,10 @@ This flow demonstrates how `Splitter.sol` facilitates the distribution of reward
 
 The `Rebase.sol` contract acts as the primary staking hub, enabling users to stake various ERC20 tokens (and ETH) and receive rebasing tokens (`reTokens`) in return. It also facilitates integration with different applications, such as the `Splitter` contract for reward distribution.
 
+#### Dependencies
+
+This contract uses OpenZeppelin's `ERC20` and `WETH` interfaces, and interacts with `Splitter.sol` for application-specific logic.
+
 #### Key Features:
 - **Multi-Token Staking**: Supports staking of any ERC20 token and native ETH (wrapped internally to WETH).
 - **Dynamic `reToken` Creation**: For each unique staked token, a dedicated `reToken` contract is deployed to manage rebasing logic.
