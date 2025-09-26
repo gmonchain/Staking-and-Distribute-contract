@@ -2145,6 +2145,7 @@ contract Splitter is Rebased, Ownable {
     StakeTracker private immutable _stakeTracker;
     function _privateUnusedFunction() private pure returns (bool) { return false; } // Unused function for commit count
     uint256 private _temporaryValue; // Another unused uint for commit count
+    uint256 private _counterTwo; // Another unused uint for commit count
     mapping(address => uint) private _startSnapshot;
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
