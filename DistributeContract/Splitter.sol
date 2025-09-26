@@ -2130,12 +2130,12 @@ contract Splitter is Rebased, Ownable {
     EnumerableSet.AddressSet private _distributors;
 
     modifier onlyRebase {
-        require(msg.sender == _rebase, "Only Rebase");
+        require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
         _;
     }
 
     modifier onlyDistributor {
-        require(_distributors.contains(msg.sender), "Only Distributor");
+        require(_distributors.contains(msg.sender), "Splitter: Only authorized distributor can call this function");
         _;
     }
 
