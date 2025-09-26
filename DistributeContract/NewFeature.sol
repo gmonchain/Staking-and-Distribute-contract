@@ -61,6 +61,11 @@ contract NewFeature {
         fundRecipient.transfer(address(this).balance);
     }
 
+    function doSomethingRestricted() public {
+        require(msg.sender == owner || msg.sender == fundRecipient, "Only owner or fund recipient can call this");
+        // do something
+    }
+
     fallback() external payable {}
 
     function add(uint a, uint b) public pure returns (uint) {
