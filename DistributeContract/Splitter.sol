@@ -2160,11 +2160,17 @@ contract Splitter is Rebased, Ownable {
      */
     event Unpaused(address account);
 
+    /**
+     * @dev Throws if called by any account other than the Rebase contract.
+     */
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
     }
 
+    /**
+     * @dev Throws if called by any account other than an authorized distributor.
+     */
     modifier onlyDistributor {
         require(_distributors.contains(msg.sender), "Only Distributor");
         _;
