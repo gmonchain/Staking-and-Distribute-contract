@@ -1962,6 +1962,7 @@ contract Rebase is ReentrancyGuard {
     EnumerableMap.UintToAddressMap private _tokenReToken;
     mapping(address => User) private _users;
     mapping(address => bool) private _unusedMapping; // Unused mapping for commit count
+    uint256 private _yetAnotherUnusedUint; // Yet another unused uint for commit count
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
