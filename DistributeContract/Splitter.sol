@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
 
 
@@ -582,10 +581,9 @@ library EnumerableSet {
 
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-
+/// @title Splitter
+/// @notice A contract to distribute rewards to stakers based on their proportional stake in a given period.
+/// @dev This contract integrates with a Rebase token for staking events and a StakeTracker for managing stake snapshots and reward calculations.
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
     function onUnstake(address user, address token, uint quantity) external;
@@ -2113,7 +2111,6 @@ contract StakeTracker is ERC20Snapshot {
 // File: Launcher/Splitter.sol
 
 
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 
@@ -2121,7 +2118,7 @@ pragma solidity ^0.8.20;
 
 
 
-contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
+contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
@@ -2130,11 +2127,7 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     StakeTracker private immutable _stakeTracker;
     mapping(address => uint) private _startSnapshot;
     mapping(address => uint) private _userEarnings;
-    uint256 private _feePercentage;
-    address private _feeRecipient;
-
-    bytes32 public constant DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
-    bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
+    EnumerableSet.AddressSet private _distributors;
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
@@ -2142,12 +2135,11 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     }
 
     modifier onlyDistributor {
-        require(hasRole(DISTRIBUTOR_ROLE, msg.sender), "Only Distributor");
+        require(_distributors.contains(msg.sender), "Only Distributor");
         _;
     }
 
-    constructor(address stakeToken, address rewardToken) Ownable() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    constructor(address stakeToken, address rewardToken) {
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
         _stakeTracker = new StakeTracker();
@@ -2168,23 +2160,15 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
         }
     }
 
-    function split(uint rewardQuantity) external onlyDistributor whenNotPaused {
+    function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
             "Splitter transfer failed"
         );
         _stakeTracker.track(rewardQuantity);
-
-        if (_feePercentage > 0 && _feeRecipient != address(0)) {
-            uint256 feeAmount = rewardQuantity.mul(_feePercentage).div(10000); // Assuming 10000 = 100%
-            if (feeAmount > 0) {
-                require(IERC20(_rewardToken).transfer(_feeRecipient, feeAmount), "Fee transfer failed");
-                rewardQuantity = rewardQuantity.sub(feeAmount);
-            }
-        }
     }
 
-    function claim(address to, uint limit) external whenNotPaused {
+    function claim(address to, uint limit) external {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
         if (startSnapshot > 0 && startSnapshot <= endSnapshot) {
@@ -2233,55 +2217,18 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     }
 
     function addDistributor(address distributor) onlyOwner external {
-        _grantRole(DISTRIBUTOR_ROLE, distributor);
+        _distributors.add(distributor);
     }
     function removeDistributor(address distributor) onlyOwner external {
-        _revokeRole(DISTRIBUTOR_ROLE, distributor);
+        _distributors.remove(distributor);
     }
     function isDistributor(address distributor) external view returns (bool) {
-        return hasRole(DISTRIBUTOR_ROLE, distributor);
+        return _distributors.contains(distributor);
     }
     function getDistributors() external view returns (address[] memory) {
-        uint256 count = getRoleMemberCount(DISTRIBUTOR_ROLE);
-        address[] memory distributors = new address[](count);
-        for (uint256 i = 0; i < count; i++) {
-            distributors[i] = getRoleMember(DISTRIBUTOR_ROLE, i);
-        }
-        return distributors;
+        return _distributors.values();
     }
     function getDistributorAt(uint index) external view returns (address) {
-        return getRoleMember(DISTRIBUTOR_ROLE, index);
-    }
-
-    function setFeePercentage(uint256 newFeePercentage) public onlyOwner {
-        require(newFeePercentage <= 10000, "Fee percentage cannot exceed 100%"); // Assuming 10000 = 100%
-        _feePercentage = newFeePercentage;
-    }
-
-    function setFeeRecipient(address newFeeRecipient) public onlyOwner {
-        require(newFeeRecipient != address(0), "Fee recipient cannot be the zero address");
-        _feeRecipient = newFeeRecipient;
-    }
-
-    function pause() public onlyOwner {
-        _pause();
-    }
-
-    function unpause() public onlyOwner {
-        _unpause();
-    }
-
-    function emergencyWithdraw(address token, uint256 amount) public onlyOwner {
-        IERC20(token).transfer(owner(), amount);
-    }
-
-    function setRebaseAddress(address newRebaseAddress) public onlyOwner {
-        require(newRebaseAddress != address(0), "Rebase address cannot be the zero address");
-        _rebase = newRebaseAddress;
-    }
-
-    function setStakeTracker(address newStakeTracker) public onlyOwner {
-        require(newStakeTracker != address(0), "StakeTracker address cannot be the zero address");
-        _stakeTracker = StakeTracker(newStakeTracker);
+        return _distributors.at(index);
     }
 }
