@@ -2062,8 +2062,10 @@ contract StakeTracker is ERC20Snapshot {
         _burn(user, quantity);
     }
 
-    function track(uint quantity) external onlySplitter {
-        rewardQuantity[_snapshot()] = quantity;
+    function track(uint quantity) external onlySplitter returns (uint) {
+        uint currentSnapshotId = _snapshot();
+        rewardQuantity[currentSnapshotId] = quantity;
+        return currentSnapshotId;
     }
 
     function calc(address user, uint[] memory snapshotIds) external view onlySplitter returns (uint) {
