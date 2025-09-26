@@ -17,8 +17,8 @@ This repository houses the essential smart contracts for a decentralized applica
 
 ## Contracts
 
-- `DistributeContract/Splitter.sol`: Manages token distribution to stakers.
-- `StakingContract/Rebase.sol`: Facilitates token staking and rebase mechanisms.
+- [`DistributeContract/Splitter.sol`](DistributeContract/Splitter.sol): Manages token distribution to stakers.
+- [`StakingContract/Rebase.sol`](StakingContract/Rebase.sol): Facilitates token staking and rebase mechanisms.
 
 ### DistributeContract (Splitter.sol) Usage Example
 
@@ -98,6 +98,8 @@ This contract uses OpenZeppelin's `ERC20` and `WETH` interfaces, and interacts w
 - **Unstaking and Restaking**: Provides functionalities for users to unstake their tokens and to transfer staked positions between applications.
 
 #### Example Scenario:
+
+To illustrate the functionality of the `Rebase.sol` contract:
 
 Consider a dApp where users stake `DAI` tokens to earn benefits, and a `Splitter` contract is used as an application to distribute rewards.
 
