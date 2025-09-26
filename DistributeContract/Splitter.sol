@@ -2197,6 +2197,7 @@ contract Splitter is Rebased, Ownable {
      * @param limit The maximum number of snapshots to process in one claim operation.
      */
     function claim(address to, uint limit) external {
+        require(!paused, "Contract is paused");
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
         if (startSnapshot > 0 && startSnapshot <= endSnapshot) {
