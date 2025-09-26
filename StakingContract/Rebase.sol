@@ -2137,6 +2137,14 @@ contract Rebase is ReentrancyGuard {
         emit Stake(msg.sender, app, token, quantity);
     }
 
+    /**
+     * @dev Internal function to handle the unstaking logic.
+     * Updates user and application stakes, removes the user from the application's user set if no more tokens are staked,
+     * and attempts to notify the target application of the unstake event.
+     * @param app The address of the application to unstake from.
+     * @param token The address of the token being unstaked.
+     * @param quantity The amount of tokens unstaked.
+     */
     function _unstake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
