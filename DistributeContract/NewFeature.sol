@@ -16,6 +16,11 @@ contract NewFeature {
 
     address public owner;
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
+
     constructor() {
         owner = msg.sender;
     }
