@@ -2157,6 +2157,15 @@ contract Splitter is Rebased, Ownable {
         paused = !paused;
     }
 
+    /**
+     * @dev Called by the Rebase contract when a user stakes tokens.
+     * Adds the staked quantity to the user's balance in StakeTracker.
+     * Records the starting snapshot ID for new stakers.
+     * Only callable by the Rebase contract and when the contract is not paused.
+     * @param user The address of the user who staked.
+     * @param token The address of the token being staked.
+     * @param quantity The amount of tokens staked.
+     */
     function onStake(address user, address token, uint quantity) external onlyRebase {
         require(!paused, "Contract is paused");
         if (token == _stakeToken) {
