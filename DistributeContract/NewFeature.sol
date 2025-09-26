@@ -2,6 +2,7 @@ pragma solidity ^0.8.20;
 
 contract NewFeature {
     uint public myNumber;
+    uint public immutable creationTime;
     // Initial content for the new feature contract
 
     function setMyNumber(uint _newNumber) public {
@@ -23,6 +24,7 @@ contract NewFeature {
 
     constructor() {
         owner = msg.sender;
+        creationTime = block.timestamp;
     }
 
     event NumberUpdated(uint oldNumber, uint newNumber);
