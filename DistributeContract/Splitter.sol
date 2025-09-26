@@ -2130,6 +2130,7 @@ contract Splitter is Rebased, Ownable {
     address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
     bytes32 private _anotherUnusedVariable; // Another unused variable for commit count
     bool private _isInitialized = false; // Unused boolean for commit count
+    string private _greeting = "Hello"; // Unused string for commit count
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
