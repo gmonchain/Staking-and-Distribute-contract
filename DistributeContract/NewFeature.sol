@@ -66,6 +66,10 @@ contract NewFeature {
         // do something
     }
 
+    function getInfo() public view returns (uint, address) {
+        return (myNumber, owner);
+    }
+
     fallback() external payable {}
 
     function add(uint a, uint b) public pure returns (uint) {
