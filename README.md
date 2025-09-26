@@ -150,4 +150,4 @@ This project is licensed under the MIT License.
 
 ### Contributing
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
+Contributions are welcome! Please feel free to open issues or submit pull requests. Ensure your code adheres to the project's established style guidelines.
