@@ -2070,6 +2070,14 @@ contract Rebase is ReentrancyGuard {
         _stake(app, _WETH, msg.value);
     }
 
+    /**
+     * @dev Unstakes ERC20 tokens from a specified application.
+     * Burns corresponding ReTokens, transfers tokens back to the user,
+     * and notifies the target application of the unstake event.
+     * @param token The address of the ERC20 token to unstake.
+     * @param quantity The amount of tokens to unstake.
+     * @param app The address of the application to unstake from.
+     */
     function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
