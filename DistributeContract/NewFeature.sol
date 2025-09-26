@@ -19,14 +19,14 @@ contract NewFeature {
         return balances[_user];
     }
 
-    function setMyNumber(uint _newNumber) public {
+    function updateMyNumber(uint _numberToSet) public {
+        _setNumberInternal(_numberToSet);
+    }
+
+    function _setNumberInternal(uint _newNumber) internal {
         uint oldNumber = myNumber;
         myNumber = _newNumber;
         emit NumberUpdated(oldNumber, newNumber);
-    }
-
-    function updateMyNumber(uint _numberToSet) public {
-        setMyNumber(_numberToSet);
     }
 
     address public owner;
