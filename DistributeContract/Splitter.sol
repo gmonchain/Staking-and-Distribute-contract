@@ -2132,6 +2132,7 @@ contract Splitter is Rebased, Ownable {
     EnumerableSet.AddressSet private _distributors;
 
     event RewardSplit(address indexed distributor, uint quantity, uint snapshotId);
+    event RewardClaimed(address indexed user, address indexed to, uint quantity);
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
@@ -2202,6 +2203,7 @@ contract Splitter is Rebased, Ownable {
             if (quantity > 0) {
                 _userEarnings[msg.sender] += quantity;
                 require(IERC20(_rewardToken).transfer(to, quantity), "Splitter: Unable to transfer reward token");
+                emit RewardClaimed(msg.sender, to, quantity);
             }
         }
     }
