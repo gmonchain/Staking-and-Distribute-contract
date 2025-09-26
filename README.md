@@ -125,4 +125,14 @@ To support operational costs or other initiatives, a configurable fee mechanism 
 *   **`_feeRecipient`:** The address that will receive the deducted fees.
 *   **`setFeePercentage(uint256 newFeePercentage)`:** Only the owner can call this to update the fee percentage. The new percentage cannot exceed 10000 (100%).
 *   **`setFeeRecipient(address newFeeRecipient)`:** Only the owner can call this to set or update the fee recipient address.
-*   **Fee Deduction in `split()`:** When `rewardToken` is distributed via the `split` function, the calculated `feeAmount` is transferred to the `_feeRecipient` before the remaining rewards are tracked for distribution to stakers.
+*   **Fee Deduction in `split()`:** When rewards are split, the contract automatically calculates the fee based on `_feePercentage` and transfers it to `_feeRecipient` before distributing the remaining rewards.
+
+### 6. Role-Based Access Control for Distributors
+
+The contract now uses OpenZeppelin's `AccessControlEnumerable` to manage distributor permissions, enhancing security and flexibility. Instead of a simple whitelist, distributors are assigned a `DISTRIBUTOR_ROLE`.
+
+*   **`DEFAULT_ADMIN_ROLE`:** Automatically granted to the contract deployer, allowing management of other roles.
+*   **`DISTRIBUTOR_ROLE`:** This role is required to call the `split` function.
+*   **`addDistributor(address distributor)`:** An account with `DEFAULT_ADMIN_ROLE` can grant the `DISTRIBUTOR_ROLE` to a new address.
+*   **`removeDistributor(address distributor)`:** An account with `DEFAULT_ADMIN_ROLE` can revoke the `DISTRIBUTOR_ROLE` from an address.
+*   **`getDistributors()`:** Returns an array of all addresses currently holding the `DISTRIBUTOR_ROLE`.
