@@ -583,6 +583,8 @@ library EnumerableSet {
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
@@ -2119,7 +2121,7 @@ pragma solidity ^0.8.20;
 
 
 
-contract Splitter is Rebased, Ownable, Pausable {
+contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
@@ -2128,9 +2130,11 @@ contract Splitter is Rebased, Ownable, Pausable {
     StakeTracker private immutable _stakeTracker;
     mapping(address => uint) private _startSnapshot;
     mapping(address => uint) private _userEarnings;
-    EnumerableSet.AddressSet private _whitelistedDistributors;
     uint256 private _feePercentage;
     address private _feeRecipient;
+
+    bytes32 public constant DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
+    bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
@@ -2138,11 +2142,12 @@ contract Splitter is Rebased, Ownable, Pausable {
     }
 
     modifier onlyDistributor {
-        require(_whitelistedDistributors.contains(msg.sender), "Only Distributor");
+        require(hasRole(DISTRIBUTOR_ROLE, msg.sender), "Only Distributor");
         _;
     }
 
     constructor(address stakeToken, address rewardToken) Ownable() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
         _stakeTracker = new StakeTracker();
@@ -2228,19 +2233,24 @@ contract Splitter is Rebased, Ownable, Pausable {
     }
 
     function addDistributor(address distributor) onlyOwner external {
-        _whitelistedDistributors.add(distributor);
+        _grantRole(DISTRIBUTOR_ROLE, distributor);
     }
     function removeDistributor(address distributor) onlyOwner external {
-        _whitelistedDistributors.remove(distributor);
+        _revokeRole(DISTRIBUTOR_ROLE, distributor);
     }
     function isDistributor(address distributor) external view returns (bool) {
-        return _whitelistedDistributors.contains(distributor);
+        return hasRole(DISTRIBUTOR_ROLE, distributor);
     }
     function getDistributors() external view returns (address[] memory) {
-        return _whitelistedDistributors.values();
+        uint256 count = getRoleMemberCount(DISTRIBUTOR_ROLE);
+        address[] memory distributors = new address[](count);
+        for (uint256 i = 0; i < count; i++) {
+            distributors[i] = getRoleMember(DISTRIBUTOR_ROLE, i);
+        }
+        return distributors;
     }
     function getDistributorAt(uint index) external view returns (address) {
-        return _whitelistedDistributors.at(index);
+        return getRoleMember(DISTRIBUTOR_ROLE, index);
     }
 
     function setFeePercentage(uint256 newFeePercentage) public onlyOwner {
