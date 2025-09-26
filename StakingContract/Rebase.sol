@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at basescan.org on 2024-07-24
+*/
+
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
 
 
@@ -1928,7 +1932,12 @@ contract ReToken is ERC20 {
 
 pragma solidity ^0.8.20;
 
-import "./IRebased.sol"; // Unused import for commit count
+
+
+
+
+
+
 
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
@@ -1940,20 +1949,6 @@ interface WETH {
     function withdraw(uint amount) external;
 }
 
-enum Status { Active, Inactive, Paused }
-
-enum LoggingLevel { Debug, Info, Warning, Error } // Unused enum for commit count
-
-struct UnusedStruct { uint256 id; address owner; }
-
-struct AnotherUnusedStruct { string name; uint256 value; } // Another unused struct for commit count
-
-/**
- * @title Rebase
- * @dev This contract allows users to stake and unstake various ERC20 tokens or ETH (wrapped as WETH) into different applications.
- * It tracks user stakes per application and token, mints/burns corresponding ReToken for staked assets, and interacts with
- * external Rebased contracts to notify them of staking events. It also includes reentrancy protection.
- */
 contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
@@ -1967,8 +1962,6 @@ contract Rebase is ReentrancyGuard {
 
     EnumerableMap.UintToAddressMap private _tokenReToken;
     mapping(address => User) private _users;
-    mapping(address => bool) private _unusedMapping; // Unused mapping for commit count
-    uint256 private _yetAnotherUnusedUint; // Yet another unused uint for commit count
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
@@ -1976,10 +1969,6 @@ contract Rebase is ReentrancyGuard {
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
-    uint public constant MAX_LIMIT = 100; // Unused constant for commit count
-    uint public constant ANOTHER_UNUSED_CONSTANT = 999; // Another unused constant for commit count
-    string private _debugMessage = "Debugging"; // Unused string for commit count
-    uint256 private _anotherRandomNumber = 456; // Another unused uint256 for commit count
 
     event Stake (
         address indexed user,
@@ -1996,101 +1985,30 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
-    event AnotherTestEvent(address indexed caller);
-
-    event AnotherUnusedEvent(address indexed user, uint256 amount);
-
-    modifier unusedModifier() {
-        _;
-    }
-
-    error CustomError(address caller);
-
-    function _internalUnusedFunction() internal pure returns (bool) {
-        return false;
-    }
-
-    function _anotherInternalUnusedFunction() internal pure returns (uint) {
-        return 0;
-    }
-
-    event RebaseStatus(address indexed sender, bool active); // Unused event for commit count
-
-    event RebasePaused(uint256 timestamp); // Another unused event for commit count
-
-    error RebaseError(string message, uint256 code); // Another unused custom error for commit count
-
-    event DebugLog(string message, uint256 value); // Unused event for debugging in Rebase.sol
-
-    event DebugNumber(uint256 number); // Another unused event for commit count
-
-    event LogMessage(string message); // Unused event for commit count
-
-    modifier onlyAdmin() { // Unused modifier for commit count
-        require(msg.sender == address(0), "Not admin");
-        _;
-    }
-
-    /**
-     * @dev Initializes the Rebase contract.
-     * Deploys a clonable ReToken contract instance.
-     */
     constructor() {
         _clonableToken = address(new ReToken());
     }
 
-    /**
-     * @dev Fallback function to receive Ether.
-     * Allows the contract to receive native Ether, which is then wrapped into WETH.
-     */
     receive() external payable { }
 
-    /**
-     * @dev Stakes ERC20 tokens into a specified application.
-     * Transfers tokens from the user to this contract, mints corresponding ReTokens,
-     * and notifies the target application of the stake event.
-     * @param token The address of the ERC20 token to stake.
-     * @param quantity The amount of tokens to stake.
-     * @param app The address of the application to stake into.
-     */
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    /**
-     * @dev Stakes native Ether into a specified application.
-     * Wraps Ether into WETH, mints corresponding ReTokens, and notifies the target application of the stake event.
-     * @param app The address of the application to stake into.
-     */
     function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    /**
-     * @dev Unstakes ERC20 tokens from a specified application.
-     * Burns corresponding ReTokens, transfers tokens back to the user,
-     * and notifies the target application of the unstake event.
-     * @param token The address of the ERC20 token to unstake.
-     * @param quantity The amount of tokens to unstake.
-     * @param app The address of the application to unstake from.
-     */
     function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    /**
-     * @dev Unstakes native Ether from a specified application.
-     * Burns corresponding ReTokens, unwraps WETH back to Ether, transfers Ether back to the user,
-     * and notifies the target application of the unstake event.
-     * @param quantity The amount of Ether to unstake.
-     * @param app The address of the application to unstake from.
-     */
     function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
@@ -2099,27 +2017,11 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    /**
-     * @dev Restakes tokens from one application to another.
-     * Unstakes tokens from `fromApp` and stakes them into `toApp`.
-     * @param token The address of the token to restake.
-     * @param quantity The amount of tokens to restake.
-     * @param fromApp The address of the application to unstake from.
-     * @param toApp The address of the application to stake into.
-     */
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
 
-    /**
-     * @dev Internal function to handle the staking logic.
-     * Records user and application stakes, adds the user to the application's user set,
-     * and calls the `onStake` function of the target application.
-     * @param app The address of the application to stake into.
-     * @param token The address of the token being staked.
-     * @param quantity The amount of tokens staked.
-     */
     function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
@@ -2137,14 +2039,6 @@ contract Rebase is ReentrancyGuard {
         emit Stake(msg.sender, app, token, quantity);
     }
 
-    /**
-     * @dev Internal function to handle the unstaking logic.
-     * Updates user and application stakes, removes the user from the application's user set if no more tokens are staked,
-     * and attempts to notify the target application of the unstake event.
-     * @param app The address of the application to unstake from.
-     * @param token The address of the token being unstaked.
-     * @param quantity The amount of tokens unstaked.
-     */
     function _unstake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
@@ -2170,13 +2064,6 @@ contract Rebase is ReentrancyGuard {
         emit Unstake(msg.sender, app, token, quantity, forced);
     }
 
-    /**
-     * @dev Internal function to get or create a ReToken contract for a given token.
-     * If a ReToken for the given token does not exist, it clones a new ReToken contract,
-     * initializes it, and stores its address.
-     * @param token The address of the underlying token.
-     * @return The ReToken contract instance.
-     */
     function _getReToken(address token) internal returns (ReToken) {
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);

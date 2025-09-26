@@ -1,3 +1,11 @@
+/**
+ *Submitted for verification at basescan.org on 2025-07-19
+*/
+
+/**
+ *Submitted for verification at basescan.org on 2025-06-17
+*/
+
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/IERC20.sol
 
 
@@ -2111,12 +2119,10 @@ contract StakeTracker is ERC20Snapshot {
 pragma solidity ^0.8.20;
 
 
-/**
- * @title Splitter
- * @dev This contract manages the distribution of reward tokens to stakers based on their stake in a specific token.
- * It integrates with a Rebase contract for staking/unstaking events and uses a StakeTracker contract to record historical
- * stake balances and distribute rewards proportionally.
- */
+
+
+
+
 contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -2128,45 +2134,22 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
-    event DistributorAdded(address indexed distributor);
-    event DistributorRemoved(address indexed distributor);
-
-    /**
-     * @dev Throws if called by any account other than the Rebase contract.
-     */
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
     }
 
-    /**
-     * @dev Throws if called by any account other than an authorized distributor.
-     */
     modifier onlyDistributor {
         require(_distributors.contains(msg.sender), "Only Distributor");
         _;
     }
 
-    /**
-     * @dev Initializes the contract with the stake and reward token addresses.
-     * Deploys a new `StakeTracker` contract.
-     * @param stakeToken The address of the token users will stake.
-     * @param rewardToken The address of the token distributed as rewards.
-     */
     constructor(address stakeToken, address rewardToken) {
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
         _stakeTracker = new StakeTracker();
     }
 
-    /**
-     * @dev Handles the staking of tokens. Called by the Rebase contract.
-     * Mints `quantity` StakeTracker tokens to the user.
-     * Records the starting snapshot ID for the user if it's their first stake.
-     * @param user The address of the staker.
-     * @param token The address of the token being staked.
-     * @param quantity The amount of tokens staked.
-     */
     function onStake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
@@ -2176,25 +2159,12 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
-    /**
-     * @dev Handles the unstaking of tokens. Called by the Rebase contract.
-     * Burns `quantity` StakeTracker tokens from the user.
-     * @param user The address of the staker.
-     * @param token The address of the token being unstaked.
-     * @param quantity The amount of tokens unstaked.
-     */
     function onUnstake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.remove(user, quantity);
         }
     }
 
-    /**
-     * @dev Allows an authorized distributor to split reward tokens.
-     * Transfers `rewardQuantity` of the reward token from the distributor to this contract.
-     * Records the reward quantity in the `StakeTracker` contract.
-     * @param rewardQuantity The amount of reward tokens to distribute.
-     */
     function split(uint rewardQuantity) external onlyDistributor {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
@@ -2203,13 +2173,6 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker.track(rewardQuantity);
     }
 
-    /**
-     * @dev Allows users to claim their accumulated reward tokens.
-     * Calculates the user's reward based on their stake during each snapshot since their last claim.
-     * Transfers the calculated reward quantity to the specified address.
-     * @param to The address to which the claimed reward tokens will be transferred.
-     * @param limit The maximum number of snapshots to process in a single claim operation.
-     */
     function claim(address to, uint limit) external {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
@@ -2230,13 +2193,6 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
-    /**
-     * @dev Returns the amount of unclaimed reward tokens for a specific user.
-     * Calculates potential earnings based on stake snapshots since the last claim, up to a limit.
-     * @param user The address of the user to query.
-     * @param limit The maximum number of snapshots to consider for calculating unclaimed earnings.
-     * @return quantity The amount of unclaimed reward tokens.
-     */
     function getUnclaimedEarnings(address user, uint limit) external view returns (uint quantity) {
         uint startSnapshot = _startSnapshot[user];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
@@ -2252,80 +2208,31 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
-    /**
-     * @dev Returns the address of the reward token.
-     * @return The address of the reward token.
-     */
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
-
-    /**
-     * @dev Returns the address of the stake token.
-     * @return The address of the stake token.
-     */
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
-
-    /**
-     * @dev Returns the address of the StakeTracker contract.
-     * @return The address of the StakeTracker contract.
-     */
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
-
-    /**
-     * @dev Returns the total claimed earnings for a specific user.
-     * @param user The address of the user to query.
-     * @return The total claimed earnings for the user.
-     */
     function getClaimedEarnings(address user) external view returns (uint) {
         return _userEarnings[user];
     }
 
-    /**
-     * @dev Adds an address to the list of authorized distributors. Only callable by the contract owner.
-     * Emits a {DistributorAdded} event.
-     * @param distributor The address to be added as a distributor.
-     */
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
-        emit DistributorAdded(distributor);
     }
-
-    /**
-     * @dev Removes an address from the list of authorized distributors. Only callable by the contract owner.
-     * Emits a {DistributorRemoved} event.
-     * @param distributor The address to be removed as a distributor.
-     */
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
-        emit DistributorRemoved(distributor);
     }
-
-    /**
-     * @dev Checks if a given address is an authorized distributor.
-     * @param distributor The address to check.
-     * @return True if the address is a distributor, false otherwise.
-     */
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
-
-    /**
-     * @dev Returns an array of all authorized distributor addresses.
-     * @return An array of distributor addresses.
-     */
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
-    /**
-     * @dev Returns the distributor address at a given index.
-     * @param index The index of the distributor to retrieve.
-     * @return The address of the distributor at the specified index.
-     */
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }

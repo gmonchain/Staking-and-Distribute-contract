@@ -14,20 +14,20 @@ The `Rebase` contract serves as the primary staking hub. It allows users to stak
 *   **Unstaking Tokens:** Users can unstake their tokens, which involves burning the `reTokens` and transferring the original staked tokens back to the user. Similarly, the `onUnstake` function on the `app` contract is called.
 *   **Restaking Tokens:** Users can transfer their staked position from one application to another without fully unstaking and restaking.
 
-### 2. Splitter Contract (`DistributeContract/Splitter.sol`)
+### 2. Splitter Contract (`Splitter.sol`)
 
 The `Splitter` contract is responsible for receiving reward tokens and distributing them proportionally to users who have staked through the `Rebase` contract and linked to this `Splitter` as their `app`.
 
 *   **Reward Token:** The `Splitter` contract is initialized with a specific `rewardToken` (an ERC20 token) that it will distribute.
 *   **Distributors:** Only authorized `distributors` (addresses added by the contract owner) can send `rewardToken` to the `Splitter` contract for distribution.
-*   **`StakeTracker` Integration:** The `Splitter` contract uses a `StakeTracker` contract (defined internally) to keep track of user stakes and reward distributions over time.
-    *   When a `distributor` sends `rewardToken` via the `split` function, the `Splitter` records this reward in the internal `StakeTracker` by creating a "snapshot." This snapshot captures the total supply of staked tokens at that moment and the amount of reward distributed.
-    *   When users stake or unstake via the `Rebase` contract, the `Splitter` (as an `app` of `Rebase`) receives `onStake` and `onUnstake` calls, and updates the internal `StakeTracker` accordingly.
+*   **`StakeTracker` Integration:** The `Splitter` contract uses a `StakeTracker` contract to keep track of user stakes and reward distributions over time.
+    *   When a `distributor` sends `rewardToken` via the `split` function, the `Splitter` records this reward in the `StakeTracker` by creating a "snapshot." This snapshot captures the total supply of staked tokens at that moment and the amount of reward distributed.
+    *   When users stake or unstake via the `Rebase` contract, the `Splitter` (as an `app` of `Rebase`) receives `onStake` and `onUnstake` calls, and updates the `StakeTracker` accordingly.
 *   **Claiming Rewards:** Users can `claim` their accumulated rewards. The `claim` function calculates a user's share of rewards based on their proportional stake at each snapshot when rewards were distributed. It then transfers the `rewardToken` to the user. To prevent excessive gas usage, users can specify a `limit` on the number of snapshots considered in a single claim transaction.
 
-### 3. StakeTracker Contract (Internal to `DistributeContract/Splitter.sol`)
+### 3. StakeTracker Contract (`StakeTracker.sol`)
 
-The `StakeTracker` contract is a specialized `ERC20Snapshot` token that acts as a ledger for tracking user stakes and reward allocations. It is defined within the `DistributeContract/Splitter.sol` file.
+The `StakeTracker` contract is a specialized ERC20Snapshot token that acts as a ledger for tracking user stakes and reward allocations.
 
 *   **ERC20Snapshot:** It extends OpenZeppelin's `ERC20Snapshot`, allowing it to record balances and total supply at specific points in time (snapshots).
 *   **Tracking Rewards:** It maps snapshot IDs to the `rewardQuantity` received by the `Splitter` at that snapshot.
