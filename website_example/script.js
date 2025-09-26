@@ -37,6 +37,34 @@ window.addEventListener('load', async () => {
         console.log("Distribute Contract:", distributeContract);
         console.log("Staking Contract:", stakingContract);
 
+        // --- Distribute Contract Functions ---
+        async function getSplitterRecipients() {
+            try {
+                const recipients = await distributeContract.methods.getRecipients().call();
+                console.log("Distribute Contract Recipients:", recipients);
+                return recipients;
+            } catch (error) {
+                console.error("Error getting distribute contract recipients:", error);
+                return [];
+            }
+        }
+
+        // --- Staking Contract Functions ---
+        async function getTotalStakedAmount() {
+            try {
+                const totalStaked = await stakingContract.methods.getTotalStaked().call();
+                console.log("Total Staked Amount:", web3.utils.fromWei(totalStaked, 'ether'));
+                return web3.utils.fromWei(totalStaked, 'ether');
+            } catch (error) {
+                console.error("Error getting total staked amount:", error);
+                return '0';
+            }
+        }
+
+        // Call read functions on load
+        getSplitterRecipients();
+        getTotalStakedAmount();
+
         // We'll add contract loading and interaction here later
     }
 });
