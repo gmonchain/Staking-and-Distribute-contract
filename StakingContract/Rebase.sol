@@ -2010,6 +2010,8 @@ contract Rebase is ReentrancyGuard {
 
     event RebasePaused(uint256 timestamp); // Another unused event for commit count
 
+    error RebaseError(string message, uint256 code); // Another unused custom error for commit count
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
