@@ -1978,6 +1978,10 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
+    function unusedFunction() public pure returns (bool) {
+        return true;
+    }
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
