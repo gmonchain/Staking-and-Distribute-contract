@@ -2134,6 +2134,7 @@ contract Splitter is Rebased, Ownable {
     event RewardSplit(address indexed distributor, uint quantity, uint snapshotId);
     event RewardClaimed(address indexed user, address indexed to, uint quantity);
     event DistributorAdded(address indexed distributor);
+    event DistributorRemoved(address indexed distributor);
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
@@ -2260,6 +2261,7 @@ contract Splitter is Rebased, Ownable {
     /// @param distributor The address to be removed as a distributor.
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
+        emit DistributorRemoved(distributor);
     }
     /// @notice Checks if an address is an authorized distributor.
     /// @param distributor The address to check.
