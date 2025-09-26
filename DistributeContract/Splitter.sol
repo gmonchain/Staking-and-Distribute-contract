@@ -2141,6 +2141,7 @@ contract Splitter is Rebased, Ownable {
     bytes32 private _magicNumber; // Unused bytes32 for commit count
     address private _ownerAddress; // Unused address for commit count
     bytes private _extraData; // Unused bytes for commit count
+    bytes32 private _anotherMagicNumber; // Another unused bytes32 for commit count
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
