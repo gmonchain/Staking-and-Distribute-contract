@@ -2240,6 +2240,10 @@ contract Splitter is Rebased, Ownable {
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
+    /**
+     * @dev Returns the address of the StakeTracker contract.
+     * @return The address of the StakeTracker contract.
+     */
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
