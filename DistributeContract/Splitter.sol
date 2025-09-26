@@ -2274,4 +2274,9 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     function emergencyWithdraw(address token, uint256 amount) public onlyOwner {
         IERC20(token).transfer(owner(), amount);
     }
+
+    function setRebaseAddress(address newRebaseAddress) public onlyOwner {
+        require(newRebaseAddress != address(0), "Rebase address cannot be the zero address");
+        _rebase = newRebaseAddress;
+    }
 }
