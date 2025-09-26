@@ -2247,6 +2247,11 @@ contract Splitter is Rebased, Ownable {
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
+    /**
+     * @dev Returns the claimed earnings of a specific user.
+     * @param user The address of the user.
+     * @return The total claimed earnings of the user.
+     */
     function getClaimedEarnings(address user) external view returns (uint) {
         return _userEarnings[user];
     }
