@@ -581,6 +581,8 @@ library EnumerableSet {
 
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/security/Pausable.sol";
+
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
     function onUnstake(address user, address token, uint quantity) external;
@@ -2040,8 +2042,6 @@ contract StakeTracker is ERC20Snapshot {
     using SafeMath for uint256;
 
     address private immutable _splitter;
-    address public immutable rewardToken; // New state variable
-    address public immutable stakeToken; // New state variable
     mapping(uint => uint) public rewardQuantity;
 
     modifier onlySplitter {
@@ -2049,10 +2049,8 @@ contract StakeTracker is ERC20Snapshot {
         _;
     }
 
-    constructor(address _rewardTokenAddress, address _stakeTokenAddress) ERC20("StakeTracker", "ST") {
+    constructor() ERC20("StakeTracker", "ST") {
         _splitter = msg.sender;
-        rewardToken = _rewardTokenAddress;
-        stakeToken = _stakeTokenAddress;
     }
 
     function add(address user, uint quantity) external onlySplitter {
@@ -2107,19 +2105,12 @@ contract StakeTracker is ERC20Snapshot {
     function getSplitter() external view returns (address) {
         return _splitter;
     }
-
-    function getRewardToken() external view returns (address) {
-        return rewardToken;
-    }
-
-    function getStakeToken() external view returns (address) {
-        return stakeToken;
-    }
 }
 
 // File: Launcher/Splitter.sol
 
 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 
@@ -2127,12 +2118,10 @@ pragma solidity ^0.8.20;
 
 
 
-contract Splitter is Rebased, Ownable {
-    // This contract handles the distribution of reward tokens to stakers
-    // based on their staked amount and a snapshot mechanism.
+contract Splitter is Rebased, Ownable, Pausable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    address private _rebaseAddress; // Changed from constant to mutable state variable
+    address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
@@ -2140,28 +2129,8 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
-    bool public paused = false; // State variable to control pausing
-
-    event Distributed(address indexed distributor, uint256 rewardQuantity, uint256 snapshotId);
-
-    event Claimed(address indexed user, address indexed to, uint256 quantity);
-
-    event DistributorAdded(address indexed distributor);
-    event DistributorRemoved(address indexed distributor);
-
-    event Paused(address account);
-    event Unpaused(address account);
-
-    event RebaseAddressChanged(address indexed oldRebase, address indexed newRebase);
-
-    event DistributorCountUpdated(uint256 newCount);
-
-    /**
-     * @dev Emitted when the count of authorized distributors changes.
-     * @param newCount The new total number of distributors.
-     */
     modifier onlyRebase {
-        require(msg.sender == _rebaseAddress, "Only Rebase"); // Updated to use _rebaseAddress
+        require(msg.sender == _rebase, "Only Rebase");
         _;
     }
 
@@ -2170,53 +2139,13 @@ contract Splitter is Rebased, Ownable {
         _;
     }
 
-    /**
-     * @dev Constructs the Splitter contract.
-     * @param rewardToken_ The address of the reward token (ERC20).
-     * @param stakeToken_ The address of the stake token (ERC20).
-     * @param rebaseAddress_ The address of the Rebase contract.
-     */
-    constructor(address rewardToken_, address stakeToken_, address rebaseAddress_) Rebased(rebaseAddress_) { // Updated constructor signature
-        _rewardToken = rewardToken_;
-        _stakeToken = stakeToken_;
-        _rebaseAddress = rebaseAddress_; // Initialize new state variable
-        _stakeTracker = new StakeTracker(_rewardToken, _stakeToken); // Updated constructor call
+    constructor(address stakeToken, address rewardToken) Ownable() {
+        _rewardToken = rewardToken;
+        _stakeToken = stakeToken;
+        _stakeTracker = new StakeTracker();
     }
 
-    /**
-     * @dev Toggles the paused state of the contract. Only the contract owner can call this function.
-     */
-    function togglePause() public onlyOwner {
-        paused = !paused;
-        if (paused) {
-            emit Paused(msg.sender);
-        } else {
-            emit Unpaused(msg.sender);
-        }
-    }
-
-    /**
-     * @dev Sets the address of the Rebase contract. Only the contract owner can call this function.
-     * @param newRebase The new address of the Rebase contract.
-     */
-    function setRebaseAddress(address newRebase) public onlyOwner {
-        require(newRebase != address(0), "New Rebase address cannot be zero");
-        address oldRebase = _rebaseAddress; // Use the mutable state variable
-        _rebaseAddress = newRebase; // Update the mutable state variable
-        emit RebaseAddressChanged(oldRebase, newRebase);
-    }
-
-    /**
-     * @dev Called by the Rebase contract when a user stakes tokens.
-     * Adds the staked quantity to the user's balance in StakeTracker.
-     * Records the starting snapshot ID for new stakers.
-     * Only callable by the Rebase contract and when the contract is not paused.
-     * @param user The address of the user who staked.
-     * @param token The address of the token being staked.
-     * @param quantity The amount of tokens staked.
-     */
     function onStake(address user, address token, uint quantity) external onlyRebase {
-        require(!paused, "Contract is paused");
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
             if (_startSnapshot[user] == 0) {
@@ -2225,45 +2154,21 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
-    /**
-     * @dev Called by the Rebase contract when a user unstakes tokens.
-     * Removes the unstaked quantity from the user's balance in StakeTracker.
-     * Only callable by the Rebase contract and when the contract is not paused.
-     * @param user The address of the user who unstaked.
-     * @param token The address of the token being unstaked.
-     * @param quantity The amount of tokens unstaked.
-     */
     function onUnstake(address user, address token, uint quantity) external onlyRebase {
-        require(!paused, "Contract is paused");
         if (token == _stakeToken) {
             _stakeTracker.remove(user, quantity);
         }
     }
 
-    /**
-     * @dev Allows a distributor to deposit reward tokens into the contract.
-     * These tokens are then recorded via snapshots for future distribution to stakers.
-     * Only callable by an authorized distributor.
-     * @param rewardQuantity The amount of reward tokens to distribute.
-     */
-    function split(uint rewardQuantity) external onlyDistributor {
-        require(!paused, "Contract is paused");
+    function split(uint rewardQuantity) external onlyDistributor whenNotPaused {
         require(
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
             "Splitter transfer failed"
         );
         _stakeTracker.track(rewardQuantity);
-        emit Distributed(msg.sender, rewardQuantity, _stakeTracker.getCurrentSnapshotId());
     }
 
-    /**
-     * @dev Allows a user to claim their accumulated reward tokens.
-     * Rewards are calculated based on the user's staked balance at each snapshot.
-     * @param to The address to send the claimed tokens to.
-     * @param limit The maximum number of snapshots to process in one claim operation.
-     */
-    function claim(address to, uint limit) external {
-        require(!paused, "Contract is paused");
+    function claim(address to, uint limit) external whenNotPaused {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
         if (startSnapshot > 0 && startSnapshot <= endSnapshot) {
@@ -2279,17 +2184,10 @@ contract Splitter is Rebased, Ownable {
             if (quantity > 0) {
                 _userEarnings[msg.sender] += quantity;
                 require(IERC20(_rewardToken).transfer(to, quantity), "Unable to transfer token");
-                emit Claimed(msg.sender, to, quantity);
             }
         }
     }
 
-    /**
-     * @dev Returns the amount of unclaimed reward tokens for a given user.
-     * @param user The address of the user.
-     * @param limit The maximum number of snapshots to consider for calculating unclaimed earnings.
-     * @return quantity The amount of unclaimed reward tokens.
-     */
     function getUnclaimedEarnings(address user, uint limit) external view returns (uint quantity) {
         uint startSnapshot = _startSnapshot[user];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
@@ -2305,91 +2203,40 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
-    /**
-     * @dev Returns the address of the reward token.
-     * @return The address of the reward token.
-     */
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
-    /**
-     * @dev Returns the address of the stake token.
-     * @return The address of the stake token.
-     */
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
-    /**
-     * @dev Returns the address of the StakeTracker contract.
-     * @return The address of the StakeTracker contract.
-     */
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
-    /**
-     * @dev Returns the claimed earnings of a specific user.
-     * @param user The address of the user.
-     * @return The total claimed earnings of the user.
-     */
     function getClaimedEarnings(address user) external view returns (uint) {
         return _userEarnings[user];
     }
 
-    /**
-     * @dev Adds a new address to the list of authorized distributors.
-     * Only the contract owner can call this function.
-     * @param distributor The address to be added as a distributor.
-     */
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
-        emit DistributorAdded(distributor);
-        emit DistributorCountUpdated(_distributors.length());
     }
-    /**
-     * @dev Removes an address from the list of authorized distributors.
-     * Only the contract owner can call this function.
-     * @param distributor The address to be removed from distributors.
-     */
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
-        emit DistributorRemoved(distributor);
-        emit DistributorCountUpdated(_distributors.length());
     }
-    /**
-     * @dev Checks if an address is an authorized distributor.
-     * @param distributor The address to check.
-     * @return True if the address is a distributor, false otherwise.
-     */
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
-    /**
-     * @dev Returns an array of all authorized distributor addresses.
-     * @return An array of distributor addresses.
-     */
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
-    /**
-     * @dev Returns the total number of authorized distributors.
-     * @return The total number of distributors.
-     */
-    function getDistributorCount() external view returns (uint256) {
-        return _distributors.length();
-    }
-    /**
-     * @dev Returns the distributor address at a specific index.
-     * @param index The index of the distributor in the list.
-     * @return The address of the distributor at the specified index.
-     */
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
-    /**
-     * @dev Returns the address of the Rebase contract.
-     * @return The address of the Rebase contract.
-     */
-    function getRebase() external pure returns (address) {
-        return _rebaseAddress;
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
     }
 }
