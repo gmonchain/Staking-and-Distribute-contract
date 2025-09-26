@@ -2226,9 +2226,17 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /**
+     * @dev Returns the address of the reward token.
+     * @return The address of the reward token.
+     */
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
+    /**
+     * @dev Returns the address of the stake token.
+     * @return The address of the stake token.
+     */
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
