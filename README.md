@@ -142,3 +142,9 @@ The contract now uses OpenZeppelin's `AccessControlEnumerable` to manage distrib
 A new function has been added to allow the contract owner to safely withdraw any ERC20 tokens that may have been accidentally sent to the contract address. This prevents tokens from being permanently locked.
 
 *   **`emergencyWithdraw(address token, uint256 amount)`:** Only the contract owner can call this function to transfer a specified `amount` of a particular `token` from the contract to the owner's address.
+
+### 8. Update Rebase Address
+
+This function allows the contract owner to update the address of the `Rebase` contract that interacts with the `Splitter` contract. This is useful for upgrades or changes in the `Rebase` contract deployment.
+
+*   **`setRebaseAddress(address newRebaseAddress)`:** Only the contract owner can call this function to set a new `Rebase` contract address. The new address cannot be the zero address.
