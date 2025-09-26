@@ -2147,6 +2147,12 @@ contract Splitter is Rebased, Ownable {
         _;
     }
 
+    /**
+     * @dev Initializes the contract with the stake and reward token addresses.
+     * Deploys a new `StakeTracker` contract.
+     * @param stakeToken The address of the token users will stake.
+     * @param rewardToken The address of the token distributed as rewards.
+     */
     constructor(address stakeToken, address rewardToken) {
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
