@@ -2178,6 +2178,9 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker.track(rewardQuantity);
     }
 
+    /// @notice Allows a user to claim their accumulated rewards.
+    /// @param to The address to send the claimed reward tokens.
+    /// @param limit The maximum number of snapshots to process in a single claim to prevent gas limit issues.
     function claim(address to, uint limit) external {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
