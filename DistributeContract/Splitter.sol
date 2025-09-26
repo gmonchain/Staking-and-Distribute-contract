@@ -2132,7 +2132,7 @@ contract Splitter is Rebased, Ownable {
     // based on their staked amount and a snapshot mechanism.
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
+    address private _rebaseAddress; // Changed from constant to mutable state variable
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
@@ -2149,28 +2149,16 @@ contract Splitter is Rebased, Ownable {
     event DistributorAdded(address indexed distributor);
     event DistributorRemoved(address indexed distributor);
 
-    /**
-     * @dev Emitted when the contract is paused.
-     * @param account The address that paused the contract.
-     */
     event Paused(address account);
-    /**
-     * @dev Emitted when the contract is unpaused.
-     * @param account The address that unpaused the contract.
-     */
     event Unpaused(address account);
 
-    /**
-     * @dev Throws if called by any account other than the Rebase contract.
-     */
+    event RebaseAddressChanged(address indexed oldRebase, address indexed newRebase);
+
     modifier onlyRebase {
-        require(msg.sender == _rebase, "Only Rebase");
+        require(msg.sender == _rebaseAddress, "Only Rebase"); // Updated to use _rebaseAddress
         _;
     }
 
-    /**
-     * @dev Throws if called by any account other than an authorized distributor.
-     */
     modifier onlyDistributor {
         require(_distributors.contains(msg.sender), "Only Distributor");
         _;
@@ -2180,10 +2168,12 @@ contract Splitter is Rebased, Ownable {
      * @dev Constructs the Splitter contract.
      * @param rewardToken_ The address of the reward token (ERC20).
      * @param stakeToken_ The address of the stake token (ERC20).
+     * @param rebaseAddress_ The address of the Rebase contract.
      */
-    constructor(address rewardToken_, address stakeToken_) Rebased(_rebase) {
+    constructor(address rewardToken_, address stakeToken_, address rebaseAddress_) Rebased(rebaseAddress_) { // Updated constructor signature
         _rewardToken = rewardToken_;
         _stakeToken = stakeToken_;
+        _rebaseAddress = rebaseAddress_; // Initialize new state variable
         _stakeTracker = new StakeTracker(_rewardToken, _stakeToken); // Updated constructor call
     }
 
@@ -2197,6 +2187,17 @@ contract Splitter is Rebased, Ownable {
         } else {
             emit Unpaused(msg.sender);
         }
+    }
+
+    /**
+     * @dev Sets the address of the Rebase contract. Only the contract owner can call this function.
+     * @param newRebase The new address of the Rebase contract.
+     */
+    function setRebaseAddress(address newRebase) public onlyOwner {
+        require(newRebase != address(0), "New Rebase address cannot be zero");
+        address oldRebase = _rebaseAddress; // Use the mutable state variable
+        _rebaseAddress = newRebase; // Update the mutable state variable
+        emit RebaseAddressChanged(oldRebase, newRebase);
     }
 
     /**
@@ -2374,6 +2375,6 @@ contract Splitter is Rebased, Ownable {
      * @return The address of the Rebase contract.
      */
     function getRebase() external pure returns (address) {
-        return _rebase;
+        return _rebaseAddress;
     }
 }
