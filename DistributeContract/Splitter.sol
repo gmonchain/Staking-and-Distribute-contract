@@ -2123,7 +2123,7 @@ pragma solidity ^0.8.20;
 contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
+    address private _rebase; // Changed from constant to state variable
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
@@ -2135,6 +2135,7 @@ contract Splitter is Rebased, Ownable {
     event RewardClaimed(address indexed user, address indexed to, uint quantity);
     event DistributorAdded(address indexed distributor);
     event DistributorRemoved(address indexed distributor);
+    event RebaseUpdated(address indexed oldRebase, address indexed newRebase);
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
@@ -2147,6 +2148,7 @@ contract Splitter is Rebased, Ownable {
     }
 
     constructor(address stakeToken, address rewardToken) {
+        _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B; // Initialize _rebase in constructor
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
         _stakeTracker = new StakeTracker();
@@ -2279,5 +2281,13 @@ contract Splitter is Rebased, Ownable {
     /// @return The address of the distributor at the specified index.
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
+    }
+
+    /// @notice Sets a new Rebase contract address.
+    /// @param newRebase The address of the new Rebase contract.
+    function setRebase(address newRebase) onlyOwner external {
+        address oldRebase = _rebase;
+        _rebase = newRebase;
+        emit RebaseUpdated(oldRebase, newRebase);
     }
 }
