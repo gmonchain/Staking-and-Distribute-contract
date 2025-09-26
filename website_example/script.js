@@ -22,6 +22,21 @@ window.addEventListener('load', async () => {
 
     if (web3) {
         console.log("Web3 initialized:", web3);
+
+        // Load contract ABIs
+        const splitterAbi = await fetch('./abis/Splitter.json').then(response => response.json());
+        const rebaseAbi = await fetch('./abis/Rebase.json').then(response => response.json());
+
+        // Replace with your actual deployed contract addresses
+        const splitterAddress = '0xYourDistributeContractAddressHere'; 
+        const rebaseAddress = '0xYourStakingContractAddressHere';
+
+        const distributeContract = new web3.eth.Contract(splitterAbi, splitterAddress);
+        const stakingContract = new web3.eth.Contract(rebaseAbi, rebaseAddress);
+
+        console.log("Distribute Contract:", distributeContract);
+        console.log("Staking Contract:", stakingContract);
+
         // We'll add contract loading and interaction here later
     }
 });
