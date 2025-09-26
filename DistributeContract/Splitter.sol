@@ -2201,6 +2201,10 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /// @notice Returns the amount of unclaimed earnings for a specific user.
+    /// @param user The address of the user.
+    /// @param limit The maximum number of snapshots to consider for calculating unclaimed earnings.
+    /// @return quantity The amount of unclaimed reward tokens for the user.
     function getUnclaimedEarnings(address user, uint limit) external view returns (uint quantity) {
         uint startSnapshot = _startSnapshot[user];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
