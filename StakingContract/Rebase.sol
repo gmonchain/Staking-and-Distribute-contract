@@ -1967,6 +1967,7 @@ contract Rebase is ReentrancyGuard {
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
+    uint public constant MAX_LIMIT = 100; // Unused constant for commit count
 
     event Stake (
         address indexed user,
