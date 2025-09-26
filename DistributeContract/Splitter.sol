@@ -2128,10 +2128,9 @@ contract Splitter is Rebased, Ownable, Pausable {
     StakeTracker private immutable _stakeTracker;
     mapping(address => uint) private _startSnapshot;
     mapping(address => uint) private _userEarnings;
-    EnumerableSet.AddressSet private _distributors;
+    EnumerableSet.AddressSet private _whitelistedDistributors;
     uint256 private _feePercentage;
     address private _feeRecipient;
-    EnumerableSet.AddressSet private _whitelistedDistributors;
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
@@ -2139,7 +2138,7 @@ contract Splitter is Rebased, Ownable, Pausable {
     }
 
     modifier onlyDistributor {
-        require(_distributors.contains(msg.sender), "Only Distributor");
+        require(_whitelistedDistributors.contains(msg.sender), "Only Distributor");
         _;
     }
 
@@ -2229,19 +2228,19 @@ contract Splitter is Rebased, Ownable, Pausable {
     }
 
     function addDistributor(address distributor) onlyOwner external {
-        _distributors.add(distributor);
+        _whitelistedDistributors.add(distributor);
     }
     function removeDistributor(address distributor) onlyOwner external {
-        _distributors.remove(distributor);
+        _whitelistedDistributors.remove(distributor);
     }
     function isDistributor(address distributor) external view returns (bool) {
-        return _distributors.contains(distributor);
+        return _whitelistedDistributors.contains(distributor);
     }
     function getDistributors() external view returns (address[] memory) {
-        return _distributors.values();
+        return _whitelistedDistributors.values();
     }
     function getDistributorAt(uint index) external view returns (address) {
-        return _distributors.at(index);
+        return _whitelistedDistributors.at(index);
     }
 
     function setFeePercentage(uint256 newFeePercentage) public onlyOwner {
