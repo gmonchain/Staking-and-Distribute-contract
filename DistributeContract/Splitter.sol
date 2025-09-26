@@ -2176,6 +2176,14 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /**
+     * @dev Called by the Rebase contract when a user unstakes tokens.
+     * Removes the unstaked quantity from the user's balance in StakeTracker.
+     * Only callable by the Rebase contract and when the contract is not paused.
+     * @param user The address of the user who unstaked.
+     * @param token The address of the token being unstaked.
+     * @param quantity The amount of tokens unstaked.
+     */
     function onUnstake(address user, address token, uint quantity) external onlyRebase {
         require(!paused, "Contract is paused");
         if (token == _stakeToken) {
