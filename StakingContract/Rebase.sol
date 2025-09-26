@@ -2014,6 +2014,8 @@ contract Rebase is ReentrancyGuard {
 
     event DebugLog(string message, uint256 value); // Unused event for debugging in Rebase.sol
 
+    event DebugNumber(uint256 number); // Another unused event for commit count
+
     modifier onlyAdmin() { // Unused modifier for commit count
         require(msg.sender == address(0), "Not admin");
         _;
