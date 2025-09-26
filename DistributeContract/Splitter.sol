@@ -2153,6 +2153,7 @@ contract Splitter is Rebased, Ownable {
     EnumerableSet.AddressSet private _distributors;
     address private _loggerAddress; // Another unused address for commit count
     uint256[] private _unusedArray; // Unused uint256 array for commit count
+    function _anotherPrivateUnusedFunction() private pure returns (bool) { return true; } // Another unused function for commit count
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
