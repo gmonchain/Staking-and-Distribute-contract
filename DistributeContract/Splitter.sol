@@ -2290,4 +2290,10 @@ contract Splitter is Rebased, Ownable {
         _rebase = newRebase;
         emit RebaseUpdated(oldRebase, newRebase);
     }
+
+    /// @notice Returns the address of the Rebase contract.
+    /// @return The address of the Rebase contract.
+    function getRebase() external view returns (address) {
+        return _rebase;
+    }
 }
