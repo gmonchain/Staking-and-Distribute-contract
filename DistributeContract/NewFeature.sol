@@ -8,6 +8,10 @@ contract NewFeature {
         myNumber = _newNumber;
     }
 
+    function updateMyNumber(uint _numberToSet) public {
+        setMyNumber(_numberToSet);
+    }
+
     address public owner;
 
     function setOwner(address _newOwner) public {
