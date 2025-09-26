@@ -23,6 +23,7 @@ contract NewFeature {
     event NumberUpdated(uint oldNumber, uint newNumber);
 
     function setOwner(address _newOwner) public {
+        require(_newOwner != address(0), "New owner cannot be the zero address");
         owner = _newOwner;
     }
 }
