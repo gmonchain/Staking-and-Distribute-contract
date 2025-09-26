@@ -4,6 +4,14 @@ contract NewFeature {
     uint public myNumber;
     uint public immutable creationTime;
 
+    struct UserData {
+        uint id;
+        string name;
+        bool active;
+    }
+
+    mapping(address => UserData) public users;
+
     mapping(address => uint) public balances;
 
     function setBalance(address _user, uint _amount) public onlyOwner {
