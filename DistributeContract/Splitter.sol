@@ -2220,31 +2220,52 @@ contract Splitter is Rebased, Ownable {
         }
     }
 
+    /// @notice Returns the address of the reward token.
+    /// @return The address of the reward token.
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
+    /// @notice Returns the address of the stake token.
+    /// @return The address of the stake token.
     function getStakeToken() external view returns (address) {
         return _stakeToken;
     }
+    /// @notice Returns the address of the StakeTracker contract.
+    /// @return The address of the StakeTracker contract.
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
     }
+    /// @notice Returns the total claimed earnings for a specific user.
+    /// @param user The address of the user.
+    /// @return The total claimed reward tokens for the user.
     function getClaimedEarnings(address user) external view returns (uint) {
         return _userEarnings[user];
     }
 
+    /// @notice Adds a new address to the list of authorized distributors.
+    /// @param distributor The address to be added as a distributor.
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
     }
+    /// @notice Removes an address from the list of authorized distributors.
+    /// @param distributor The address to be removed as a distributor.
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
     }
+    /// @notice Checks if an address is an authorized distributor.
+    /// @param distributor The address to check.
+    /// @return A boolean indicating if the address is a distributor.
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
+    /// @notice Returns an array of all authorized distributor addresses.
+    /// @return An array containing all distributor addresses.
     function getDistributors() external view returns (address[] memory) {
         return _distributors.values();
     }
+    /// @notice Returns the distributor address at a specific index.
+    /// @param index The index of the distributor to retrieve.
+    /// @return The address of the distributor at the specified index.
     function getDistributorAt(uint index) external view returns (address) {
         return _distributors.at(index);
     }
