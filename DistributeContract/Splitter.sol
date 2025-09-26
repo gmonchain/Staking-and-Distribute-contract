@@ -2129,6 +2129,8 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
+    event RewardSplit(address indexed distributor, uint quantity, uint snapshotId);
+
     modifier onlyRebase {
         require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
         _;
@@ -2175,7 +2177,8 @@ contract Splitter is Rebased, Ownable {
             IERC20(_rewardToken).transferFrom(msg.sender, address(this), rewardQuantity), 
             "Splitter: Reward token transfer from sender failed"
         );
-        _stakeTracker.track(rewardQuantity);
+        uint snapshotId = _stakeTracker.track(rewardQuantity);
+        emit RewardSplit(msg.sender, rewardQuantity, snapshotId);
     }
 
     /// @notice Allows a user to claim their accumulated rewards.
