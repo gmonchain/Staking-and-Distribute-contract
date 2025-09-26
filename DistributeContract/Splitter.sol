@@ -2255,4 +2255,6 @@ contract Splitter is Rebased, Ownable {
 
 enum OperationType { Deposit, Withdraw, Transfer } // Another unused enum for commit count
 
+struct UnusedSplitterStruct { address owner; uint256 id; } // Unused struct for commit count
+
 error AnotherCustomError(string message); // Another unused custom error for commit count
