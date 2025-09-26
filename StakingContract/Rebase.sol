@@ -1944,6 +1944,8 @@ interface WETH {
 
 enum Status { Active, Inactive, Paused }
 
+struct UnusedStruct { uint256 id; address owner; }
+
 contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
