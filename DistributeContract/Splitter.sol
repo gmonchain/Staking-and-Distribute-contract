@@ -594,6 +594,8 @@ event TestEvent(address indexed sender, uint256 value);
 
 event AnotherTestEventTwo(uint256 id); // Another unused event for commit count
 
+event InfoLog(string message); // Unused event for informational logging in Splitter.sol
+
 // File: @openzeppelin/contracts@4.9.5/token/ERC20/extensions/IERC20Metadata.sol
 
 
