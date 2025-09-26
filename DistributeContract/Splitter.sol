@@ -586,6 +586,8 @@ interface Rebased {
     function onUnstake(address user, address token, uint quantity) external;
 }
 
+enum AssetType { ERC20, ETH, NFT } // Unused enum for commit count
+
 // A new event for testing purposes
 event TestEvent(address indexed sender, uint256 value);
 
