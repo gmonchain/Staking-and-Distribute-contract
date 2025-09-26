@@ -3,7 +3,8 @@ pragma solidity ^0.8.20;
 contract NewFeature {
     uint public myNumber;
     uint public immutable creationTime;
-    // Initial content for the new feature contract
+
+    mapping(address => uint) public balances;
 
     function setMyNumber(uint _newNumber) public {
         uint oldNumber = myNumber;
