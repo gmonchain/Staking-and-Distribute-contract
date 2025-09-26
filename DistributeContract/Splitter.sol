@@ -2110,6 +2110,8 @@ contract StakeTracker is ERC20Snapshot {
 
 pragma solidity ^0.8.20;
 
+// This contract handles the distribution of reward tokens to stakers.
+
 
 
 
@@ -2118,7 +2120,7 @@ pragma solidity ^0.8.20;
 contract Splitter is Rebased, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    address private _rebase;
+    address private constant _rebase = 0x89fA20b30a88811FBB044821FEC130793185c60B;
     address private immutable _rewardToken;
     address private immutable _stakeToken;
     StakeTracker private immutable _stakeTracker;
@@ -2140,18 +2142,6 @@ contract Splitter is Rebased, Ownable {
         _rewardToken = rewardToken;
         _stakeToken = stakeToken;
         _stakeTracker = new StakeTracker();
-    }
-
-    function setRebaseAddress(address rebaseAddress) public onlyOwner {
-        _rebase = rebaseAddress;
-    }
-
-    function setStakeTokenAddress(address stakeTokenAddress) public onlyOwner {
-        _stakeToken = stakeTokenAddress;
-    }
-
-    function setRewardTokenAddress(address rewardTokenAddress) public onlyOwner {
-        _rewardToken = rewardTokenAddress;
     }
 
     function onStake(address user, address token, uint quantity) external onlyRebase {
@@ -2215,14 +2205,8 @@ contract Splitter is Rebased, Ownable {
     function getRewardToken() external view returns (address) {
         return _rewardToken;
     }
-    function getRebaseAddress() external view returns (address) {
-        return _rebase;
-    }
-    function getStakeTokenAddress() external view returns (address) {
+    function getStakeToken() external view returns (address) {
         return _stakeToken;
-    }
-    function getRewardTokenAddress() external view returns (address) {
-        return _rewardToken;
     }
     function getStakeTracker() external view returns (address) {
         return address(_stakeTracker);
