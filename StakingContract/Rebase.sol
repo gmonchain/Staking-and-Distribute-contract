@@ -1928,6 +1928,8 @@ contract ReToken is ERC20 {
 
 pragma solidity ^0.8.20;
 
+import "./IRebased.sol"; // Unused import for commit count
+
 // This contract manages staking and unstaking of tokens.
 
 interface Rebased {
