@@ -13,6 +13,7 @@
                 console.log("Connected to MetaMask.");
             } catch (error) {
                 console.error("User denied account access or other error:", error);
+                alert("Could not connect to MetaMask. Please open MetaMask and connect your account.");
             }
         } else if (window.web3) {
             web3 = new Web3(window.web3.currentProvider);
