@@ -2149,7 +2149,15 @@ contract Splitter is Rebased, Ownable {
     event DistributorAdded(address indexed distributor);
     event DistributorRemoved(address indexed distributor);
 
+    /**
+     * @dev Emitted when the contract is paused.
+     * @param account The address that paused the contract.
+     */
     event Paused(address account);
+    /**
+     * @dev Emitted when the contract is unpaused.
+     * @param account The address that unpaused the contract.
+     */
     event Unpaused(address account);
 
     modifier onlyRebase {
