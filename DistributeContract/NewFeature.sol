@@ -57,6 +57,10 @@ contract NewFeature {
 
     receive() external payable {}
 
+    function withdrawFunds() public onlyOwner {
+        fundRecipient.transfer(address(this).balance);
+    }
+
     fallback() external payable {}
 
     function add(uint a, uint b) public pure returns (uint) {
