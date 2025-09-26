@@ -2270,4 +2270,8 @@ contract Splitter is Rebased, Ownable, Pausable, AccessControlEnumerable {
     function unpause() public onlyOwner {
         _unpause();
     }
+
+    function emergencyWithdraw(address token, uint256 amount) public onlyOwner {
+        IERC20(token).transfer(owner(), amount);
+    }
 }
