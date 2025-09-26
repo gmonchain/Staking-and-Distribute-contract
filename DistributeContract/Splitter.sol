@@ -2128,6 +2128,8 @@ contract Splitter is Rebased, Ownable {
     mapping(address => uint) private _userEarnings;
     EnumerableSet.AddressSet private _distributors;
 
+    event Distributed(address indexed distributor, uint256 rewardQuantity, uint256 snapshotId);
+
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
@@ -2165,6 +2167,7 @@ contract Splitter is Rebased, Ownable {
             "Splitter transfer failed"
         );
         _stakeTracker.track(rewardQuantity);
+        emit Distributed(msg.sender, rewardQuantity, _stakeTracker.getCurrentSnapshotId());
     }
 
     function claim(address to, uint limit) external {
