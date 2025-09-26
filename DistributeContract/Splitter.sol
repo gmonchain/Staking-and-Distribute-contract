@@ -2154,6 +2154,8 @@ contract Splitter is Rebased, Ownable {
 
     event RebaseAddressChanged(address indexed oldRebase, address indexed newRebase);
 
+    event DistributorCountUpdated(uint256 newCount);
+
     modifier onlyRebase {
         require(msg.sender == _rebaseAddress, "Only Rebase"); // Updated to use _rebaseAddress
         _;
@@ -2337,6 +2339,7 @@ contract Splitter is Rebased, Ownable {
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
         emit DistributorAdded(distributor);
+        emit DistributorCountUpdated(_distributors.length());
     }
     /**
      * @dev Removes an address from the list of authorized distributors.
@@ -2346,6 +2349,7 @@ contract Splitter is Rebased, Ownable {
     function removeDistributor(address distributor) onlyOwner external {
         _distributors.remove(distributor);
         emit DistributorRemoved(distributor);
+        emit DistributorCountUpdated(_distributors.length());
     }
     /**
      * @dev Checks if an address is an authorized distributor.
