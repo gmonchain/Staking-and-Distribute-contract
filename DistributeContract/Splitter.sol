@@ -2218,7 +2218,7 @@ contract Splitter is Rebased, Ownable {
     function getRebaseAddress() external view returns (address) {
         return _rebase;
     }
-    function getStakeToken() external view returns (address) {
+    function getStakeTokenAddress() external view returns (address) {
         return _stakeToken;
     }
     function getStakeTracker() external view returns (address) {
