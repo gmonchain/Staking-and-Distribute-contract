@@ -2001,6 +2001,10 @@ contract Rebase is ReentrancyGuard {
         return false;
     }
 
+    function _anotherInternalUnusedFunction() internal pure returns (uint) {
+        return 0;
+    }
+
     constructor() {
         _clonableToken = address(new ReToken());
     }
