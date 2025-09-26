@@ -133,3 +133,7 @@ Consider a dApp where users stake `DAI` tokens to earn benefits, and a `Splitter
         ```
 
 This example illustrates the core functionalities of `Rebase.sol` for managing token staking and its flexible integration with various decentralized applications.
+
+### Development
+
+To set up the development environment, ensure you have Node.js and Hardhat installed. Follow typical Hardhat project setup for compilation and testing.
