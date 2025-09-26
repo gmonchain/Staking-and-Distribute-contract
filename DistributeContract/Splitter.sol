@@ -2115,6 +2115,7 @@ contract StakeTracker is ERC20Snapshot {
 pragma solidity ^0.8.20;
 
 // This contract handles the distribution of reward tokens to stakers.
+pragma abicoder v2; // Unused pragma for commit count
 
 
 
