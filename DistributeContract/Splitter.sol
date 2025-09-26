@@ -2133,6 +2133,7 @@ contract Splitter is Rebased, Ownable {
 
     event RewardSplit(address indexed distributor, uint quantity, uint snapshotId);
     event RewardClaimed(address indexed user, address indexed to, uint quantity);
+    event DistributorAdded(address indexed distributor);
 
     modifier onlyRebase {
         require(msg.sender == _rebase, "Splitter: Only Rebase contract can call this function");
@@ -2253,6 +2254,7 @@ contract Splitter is Rebased, Ownable {
     /// @param distributor The address to be added as a distributor.
     function addDistributor(address distributor) onlyOwner external {
         _distributors.add(distributor);
+        emit DistributorAdded(distributor);
     }
     /// @notice Removes an address from the list of authorized distributors.
     /// @param distributor The address to be removed as a distributor.
