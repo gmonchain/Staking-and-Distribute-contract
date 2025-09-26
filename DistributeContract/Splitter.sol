@@ -2142,6 +2142,10 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker = new StakeTracker();
     }
 
+    function setRebaseAddress(address rebaseAddress) public onlyOwner {
+        _rebase = rebaseAddress;
+    }
+
     function onStake(address user, address token, uint quantity) external onlyRebase {
         if (token == _stakeToken) {
             _stakeTracker.add(user, quantity);
