@@ -1982,9 +1982,7 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
-    function unusedFunction() public pure returns (bool) {
-        return true;
-    }
+    event AnotherTestEvent(address indexed caller);
 
     modifier unusedModifier() {
         _;
