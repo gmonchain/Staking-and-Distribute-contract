@@ -2203,6 +2203,13 @@ contract Splitter is Rebased, Ownable {
         _stakeTracker.track(rewardQuantity);
     }
 
+    /**
+     * @dev Allows users to claim their accumulated reward tokens.
+     * Calculates the user's reward based on their stake during each snapshot since their last claim.
+     * Transfers the calculated reward quantity to the specified address.
+     * @param to The address to which the claimed reward tokens will be transferred.
+     * @param limit The maximum number of snapshots to process in a single claim operation.
+     */
     function claim(address to, uint limit) external {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
