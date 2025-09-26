@@ -1,168 +1,111 @@
-# Staking and Distribute Contracts
+# Staking and Distribution Contracts
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+This repository contains two core Solidity smart contracts: `Rebase.sol` (Staking Contract) and `Splitter.sol` (Distribution Contract), along with a helper contract `StakeTracker.sol`. These contracts work together to enable users to stake various ERC20 tokens (and ETH) and receive rewards distributed by authorized entities.
 
-This repository houses the essential smart contracts for a decentralized application focused on token staking and distribution. It includes two primary contracts: `Splitter.sol` for managing token distribution and `Rebase.sol` for handling staking and rebase mechanics.
+## Mechanism Explanation
 
-This documentation is intended for developers, auditors, and users interested in understanding and interacting with the contracts.
+### 1. Rebase Contract (`Rebase.sol`)
 
-## Table of Contents
+The `Rebase` contract serves as the primary staking hub. It allows users to stake ERC20 tokens or ETH, and in return, they receive a corresponding amount of "reTokens" (rebasing tokens).
 
-- [Contracts](#contracts)
-- [DistributeContract (Splitter.sol) Usage Example](#distributecontract-splittersol-usage-example)
-- [StakingContract (Rebase.sol) Usage Example](#stakingcontract-rebase.sol-usage-example)
-- [Security Considerations](#security-considerations)
-- [Development](#development)
-- [License](#license)
-- [Contributing](#contributing)
-- [Acknowledgements](#acknowledgements)
-- [External Links](#external-links)
+*   **Staking Tokens:** Users can stake any ERC20 token or native ETH (which is converted to WETH internally). When tokens are staked, the `Rebase` contract interacts with a dynamically created `ReToken` contract specific to the staked token. This `ReToken` contract then mints new `reTokens` to the user, representing their staked position.
+*   **Dynamic `ReToken` Creation:** For each unique token staked, the `Rebase` contract deploys a minimal proxy (`cloneDeterministic`) of the `ReToken` contract. This ensures that each staked token has its own dedicated `reToken` that tracks its rebasing logic.
+*   **Application Integration:** The `Rebase` contract allows for integration with various "applications" (represented by smart contract addresses). When a user stakes, they specify an `app` address. The `Rebase` contract then calls the `onStake` function on the specified `app` contract, notifying it of the new stake.
+*   **Unstaking Tokens:** Users can unstake their tokens, which involves burning the `reTokens` and transferring the original staked tokens back to the user. Similarly, the `onUnstake` function on the `app` contract is called.
+*   **Restaking Tokens:** Users can transfer their staked position from one application to another without fully unstaking and restaking.
 
-## Contracts
+### 2. Splitter Contract (`Splitter.sol`)
 
-- [`DistributeContract/Splitter.sol`](DistributeContract/Splitter.sol): Manages token distribution to stakers.
-- [`StakingContract/Rebase.sol`](StakingContract/Rebase.sol): Facilitates token staking and rebase mechanisms.
+The `Splitter` contract is responsible for receiving reward tokens and distributing them proportionally to users who have staked through the `Rebase` contract and linked to this `Splitter` as their `app`.
 
-### DistributeContract (Splitter.sol) Usage Example
+*   **Reward Token:** The `Splitter` contract is initialized with a specific `rewardToken` (an ERC20 token) that it will distribute.
+*   **Distributors:** Only authorized `distributors` (addresses added by the contract owner) can send `rewardToken` to the `Splitter` contract for distribution.
+*   **`StakeTracker` Integration:** The `Splitter` contract uses a `StakeTracker` contract to keep track of user stakes and reward distributions over time.
+    *   When a `distributor` sends `rewardToken` via the `split` function, the `Splitter` records this reward in the `StakeTracker` by creating a "snapshot." This snapshot captures the total supply of staked tokens at that moment and the amount of reward distributed.
+    *   When users stake or unstake via the `Rebase` contract, the `Splitter` (as an `app` of `Rebase`) receives `onStake` and `onUnstake` calls, and updates the `StakeTracker` accordingly.
+*   **Claiming Rewards:** Users can `claim` their accumulated rewards. The `claim` function calculates a user's share of rewards based on their proportional stake at each snapshot when rewards were distributed. It then transfers the `rewardToken` to the user. To prevent excessive gas usage, users can specify a `limit` on the number of snapshots considered in a single claim transaction.
 
-The `Splitter.sol` contract is designed to distribute a specific `rewardToken` to users who have staked tokens via the `Rebase.sol` contract and linked to this `Splitter` as their application.
+### 3. StakeTracker Contract (`StakeTracker.sol`)
 
-#### Dependencies
+The `StakeTracker` contract is a specialized ERC20Snapshot token that acts as a ledger for tracking user stakes and reward allocations.
 
-This contract relies on `Rebase.sol` for staking integration and standard OpenZeppelin contracts for ERC20 functionalities.
+*   **ERC20Snapshot:** It extends OpenZeppelin's `ERC20Snapshot`, allowing it to record balances and total supply at specific points in time (snapshots).
+*   **Tracking Rewards:** It maps snapshot IDs to the `rewardQuantity` received by the `Splitter` at that snapshot.
+*   **Calculating User Rewards:** The `getUserReward` function calculates a user's proportional share of rewards for a given snapshot by comparing their `balanceOfAt` (their stake at that snapshot) to the `totalSupplyAt` (total staked supply at that snapshot).
 
-#### Key Features:
-- **Reward Token Distribution**: Authorized distributors can send `rewardToken` to the contract for proportional distribution.
-- **Stake Tracking**: Integrates with a `StakeTracker` to record user stakes and reward distributions over time.
-- **Claiming Rewards**: Users can claim their accumulated rewards based on their proportional stake at each distribution snapshot.
+## Usage Instructions
 
-#### Example Scenario:
+### Deployment
 
-Imagine a project where users stake `USDC` tokens in the `Rebase` contract and receive `PROJECT_TOKEN` as rewards distributed by the `Splitter` contract.
+1.  **Deploy `Rebase.sol`:** Deploy the `Rebase` contract. Note the address of the deployed `Rebase` contract.
+    *   Example on BaseScan: [0x89fA20b30a88811FBB044821FEC130793185c60B](https://basescan.org/address/0x89fa20b30a88811fbb044821fec130793185c60b)
+2.  **Deploy `Splitter.sol`:** Deploy the `Splitter` contract, providing the `stakeToken` (the token users will stake) and `rewardToken` (the token that will be distributed as rewards) addresses as constructor arguments.
+    *   Example on BaseScan: [0x6bc86cb06db133e939cc9d3cd27b6b34772dd0cb](https://basescan.org/address/0x6bc86cb06db133e939cc9d3cd27b6b34772dd0cb)
 
-1.  **Deployment**:
-    - Deploy `Rebase.sol`.
-    - Deploy `Splitter.sol` with `stakeToken` (e.g., `USDC` address) and `rewardToken` (e.g., `PROJECT_TOKEN` address) as constructor arguments.
+### Staking Tokens (via `Rebase` contract)
 
-2.  **Admin Setup**:
-    - The owner of the `Splitter` contract adds a distributor address:
-        ```solidity
-        Splitter.addDistributor(YOUR_DISTRIBUTOR_ADDRESS);
-        ```
+To stake ERC20 tokens:
 
-3.  **User Staking (via Rebase)**:
-    - User approves `Rebase` to spend their `USDC`:
-        ```solidity
-        IERC20(USDC_ADDRESS).approve(REBASE_CONTRACT_ADDRESS, AMOUNT_TO_STAKE);
-        ```
-    - User stakes `USDC`, linking to the `Splitter` contract:
-        ```solidity
-        Rebase.stake(USDC_ADDRESS, AMOUNT_TO_STAKE, SPLITTER_CONTRACT_ADDRESS);
-        ```
+1.  Approve the `Rebase` contract to spend your ERC20 tokens:
+    ```solidity
+    IERC20(YOUR_TOKEN_ADDRESS).approve(REBASE_CONTRACT_ADDRESS, AMOUNT_TO_STAKE);
+    ```
+2.  Call the `stake` function on the `Rebase` contract:
+    ```solidity
+    Rebase.stake(YOUR_TOKEN_ADDRESS, AMOUNT_TO_STAKE, SPLITTER_CONTRACT_ADDRESS);
+    ```
+    (Replace `YOUR_TOKEN_ADDRESS`, `AMOUNT_TO_STAKE`, and `SPLITTER_CONTRACT_ADDRESS` with actual values.)
 
-4.  **Reward Distribution (by Distributor)**:
-    - Distributor approves `Splitter` to spend `PROJECT_TOKEN`:
-        ```solidity
-        IERC20(PROJECT_TOKEN_ADDRESS).approve(SPLITTER_CONTRACT_ADDRESS, AMOUNT_OF_REWARD);
-        ```
-    - Distributor calls `split` to distribute rewards:
-        ```solidity
-        Splitter.split(AMOUNT_OF_REWARD);
-        ```
+To stake ETH:
 
-5.  **User Claiming Rewards**:
-    - User checks their unclaimed earnings:
-        ```solidity
-        Splitter.getUnclaimedEarnings(USER_ADDRESS, 100); // 100 is max snapshots to process
-        ```
-    - User claims their `PROJECT_TOKEN` rewards:
-        ```solidity
-        Splitter.claim(USER_ADDRESS, 100);
-        ```
+1.  Call the `stakeETH` function on the `Rebase` contract, sending the desired ETH amount:
+    ```solidity
+    Rebase.stakeETH(SPLITTER_CONTRACT_ADDRESS) payable; // send value with the transaction
+    ```
+    (Replace `SPLITTER_CONTRACT_ADDRESS` with the actual value.)
 
-This flow demonstrates how `Splitter.sol` facilitates the distribution of rewards to stakers, integrated seamlessly with the `Rebase.sol` contract.
+### Unstaking Tokens (via `Rebase` contract)
 
-### Security Considerations
+To unstake ERC20 tokens:
 
-Smart contracts are highly susceptible to vulnerabilities. Thorough auditing and testing are crucial before deployment to a production environment. Users should always exercise caution and understand the risks involved.
+```solidity
+Rebase.unstake(YOUR_TOKEN_ADDRESS, AMOUNT_TO_UNSTAKE, SPLITTER_CONTRACT_ADDRESS);
+```
 
-### StakingContract (Rebase.sol) Usage Example
+To unstake ETH:
 
-The `Rebase.sol` contract acts as the primary staking hub, enabling users to stake various ERC20 tokens (and ETH) and receive rebasing tokens (`reTokens`) in return. It also facilitates integration with different applications, such as the `Splitter` contract for reward distribution.
+```solidity
+Rebase.unstakeETH(AMOUNT_TO_UNSTAKE, SPLITTER_CONTRACT_ADDRESS);
+```
 
-#### Dependencies
+### Distributing Rewards (via `Splitter` contract)
 
-This contract uses OpenZeppelin's `ERC20` and `WETH` interfaces, and interacts with `Splitter.sol` for application-specific logic.
+Only approved distributors can perform this action.
 
-#### Key Features:
-- **Multi-Token Staking**: Supports staking of any ERC20 token and native ETH (wrapped internally to WETH).
-- **Dynamic `reToken` Creation**: For each unique staked token, a dedicated `reToken` contract is deployed to manage rebasing logic.
-- **Application Integration**: Allows integration with external applications (like `Splitter`) via `onStake` and `onUnstake` callbacks.
-- **Unstaking and Restaking**: Provides functionalities for users to unstake their tokens and to transfer staked positions between applications.
+1.  The owner of the `Splitter` contract must add your address as a distributor:
+    ```solidity
+    Splitter.addDistributor(YOUR_DISTRIBUTOR_ADDRESS);
+    ```
+2.  Approve the `Splitter` contract to spend the reward tokens from your distributor address:
+    ```solidity
+    IERC20(REWARD_TOKEN_ADDRESS).approve(SPLITTER_CONTRACT_ADDRESS, AMOUNT_OF_REWARD);
+    ```
+3.  Call the `split` function on the `Splitter` contract to distribute rewards:
+    ```solidity
+    Splitter.split(AMOUNT_OF_REWARD);
+    ```
 
-#### Example Scenario:
+### Claiming Rewards (via `Splitter` contract)
 
-To illustrate the functionality of the `Rebase.sol` contract:
+Any user can claim their earned rewards.
 
-Consider a dApp where users stake `DAI` tokens to earn benefits, and a `Splitter` contract is used as an application to distribute rewards.
+```solidity
+Splitter.claim(YOUR_RECEIVING_ADDRESS, MAX_SNAPSHOTS_TO_PROCESS);
+```
+(Replace `YOUR_RECEIVING_ADDRESS` with the address where you want to receive the rewards, and `MAX_SNAPSHOTS_TO_PROCESS` with a reasonable number to avoid gas limits, e.g., 50 or 100.)
 
-1.  **Deployment**:
-    - Deploy `Rebase.sol`. Note its address.
-    - (Optional: Deploy `Splitter.sol` if it's the target application, as described in the `DistributeContract` example).
+You can check your unclaimed earnings before claiming:
 
-2.  **User Staking ERC20 Tokens**:
-    - User approves the `Rebase` contract to spend their `DAI` tokens:
-        ```solidity
-        IERC20(DAI_ADDRESS).approve(REBASE_CONTRACT_ADDRESS, AMOUNT_TO_STAKE);
-        ```
-    - User stakes `DAI`, specifying the target application (e.g., `SPLITTER_CONTRACT_ADDRESS`):
-        ```solidity
-        Rebase.stake(DAI_ADDRESS, AMOUNT_TO_STAKE, APPLICATION_CONTRACT_ADDRESS); // APPLICATION_CONTRACT_ADDRESS could be Splitter.sol
-        ```
-
-3.  **User Staking ETH**:
-    - User calls `stakeETH` on `Rebase`, sending the desired ETH amount:
-        ```solidity
-        Rebase.stakeETH(APPLICATION_CONTRACT_ADDRESS) payable; // send value with the transaction
-        ```
-
-4.  **User Unstaking ERC20 Tokens**:
-    - User unstakes `DAI` from a specific application:
-        ```solidity
-        Rebase.unstake(DAI_ADDRESS, AMOUNT_TO_UNSTAKE, APPLICATION_CONTRACT_ADDRESS);
-        ```
-
-5.  **User Unstaking ETH**:
-    - User unstakes ETH from a specific application:
-        ```solidity
-        Rebase.unstakeETH(AMOUNT_TO_UNSTAKE, APPLICATION_CONTRACT_ADDRESS);
-        ```
-
-6.  **User Restaking (Transferring Staked Position)**:
-    - User transfers their staked `DAI` from one application (`APP_A`) to another (`APP_B`):
-        ```solity
-        Rebase.restake(DAI_ADDRESS, AMOUNT_TO_RESTAKE, APP_A_ADDRESS, APP_B_ADDRESS);
-        ```
-
-This example illustrates the core functionalities of `Rebase.sol` for managing token staking and its flexible integration with various decentralized applications.
-
-### Development
-
-To set up the development environment, ensure you have Node.js and Hardhat installed. Follow typical Hardhat project setup for compilation and testing. Comprehensive tests are located in the `test/` directory.
-
-### License
-
-This project is licensed under the MIT License.
-
-### Contributing
-
-Contributions are welcome! Please feel free to open issues or submit pull requests. Ensure your code adheres to the project's established style guidelines.
-
-### Acknowledgements
-
-- OpenZeppelin for foundational smart contract libraries.
-
-### External Links
-
-- [Project Website](https://example.com) (Coming Soon)
-- [Block Explorer](https://etherscan.io/address/0x...) (Example address, replace with actual deployment)
+```solidity
+Splitter.getUnclaimedEarnings(YOUR_ADDRESS, MAX_SNAPSHOTS_TO_PROCESS);
+```
