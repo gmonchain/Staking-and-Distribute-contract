@@ -1944,6 +1944,8 @@ interface WETH {
 
 enum Status { Active, Inactive, Paused }
 
+enum LoggingLevel { Debug, Info, Warning, Error } // Unused enum for commit count
+
 struct UnusedStruct { uint256 id; address owner; }
 
 struct AnotherUnusedStruct { string name; uint256 value; } // Another unused struct for commit count
