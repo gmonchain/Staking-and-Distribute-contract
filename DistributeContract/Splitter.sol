@@ -2305,6 +2305,11 @@ contract Splitter is Rebased, Ownable {
         emit DistributorRemoved(distributor);
     }
 
+    /**
+     * @dev Checks if a given address is an authorized distributor.
+     * @param distributor The address to check.
+     * @return True if the address is a distributor, false otherwise.
+     */
     function isDistributor(address distributor) external view returns (bool) {
         return _distributors.contains(distributor);
     }
