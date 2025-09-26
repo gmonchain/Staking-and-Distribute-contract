@@ -2149,6 +2149,9 @@ contract Splitter is Rebased, Ownable {
     event DistributorAdded(address indexed distributor);
     event DistributorRemoved(address indexed distributor);
 
+    event Paused(address account);
+    event Unpaused(address account);
+
     modifier onlyRebase {
         require(msg.sender == _rebase, "Only Rebase");
         _;
@@ -2175,6 +2178,11 @@ contract Splitter is Rebased, Ownable {
      */
     function togglePause() public onlyOwner {
         paused = !paused;
+        if (paused) {
+            emit Paused(msg.sender);
+        } else {
+            emit Unpaused(msg.sender);
+        }
     }
 
     /**
