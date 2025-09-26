@@ -2084,6 +2084,13 @@ contract Rebase is ReentrancyGuard {
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
+    /**
+     * @dev Unstakes native Ether from a specified application.
+     * Burns corresponding ReTokens, unwraps WETH back to Ether, transfers Ether back to the user,
+     * and notifies the target application of the unstake event.
+     * @param quantity The amount of Ether to unstake.
+     * @param app The address of the application to unstake from.
+     */
     function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
