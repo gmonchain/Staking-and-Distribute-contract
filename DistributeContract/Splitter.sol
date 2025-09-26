@@ -2178,6 +2178,12 @@ contract Splitter is Rebased, Ownable {
         emit Distributed(msg.sender, rewardQuantity, _stakeTracker.getCurrentSnapshotId());
     }
 
+    /**
+     * @dev Allows a user to claim their accumulated reward tokens.
+     * Rewards are calculated based on the user's staked balance at each snapshot.
+     * @param to The address to send the claimed tokens to.
+     * @param limit The maximum number of snapshots to process in one claim operation.
+     */
     function claim(address to, uint limit) external {
         uint startSnapshot = _startSnapshot[msg.sender];
         uint endSnapshot = _stakeTracker.getCurrentSnapshotId();
