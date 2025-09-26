@@ -2,6 +2,12 @@
 
 This repository houses the essential smart contracts for a decentralized application focused on token staking and distribution. It includes two primary contracts: `Splitter.sol` for managing token distribution and `Rebase.sol` for handling staking and rebase mechanics.
 
+## Table of Contents
+
+- [Contracts](#contracts)
+- [DistributeContract (Splitter.sol) Usage Example](#distributecontract-splittersol-usage-example)
+- [StakingContract (Rebase.sol) Usage Example](#stakingcontract-rebase.sol-usage-example)
+
 ## Contracts
 
 - `DistributeContract/Splitter.sol`: Handles token distribution logic.
