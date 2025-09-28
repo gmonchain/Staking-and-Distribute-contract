@@ -1923,12 +1923,7 @@ contract ReToken is ERC20, Ownable {
 
 pragma solidity ^0.8.20;
 
-
-
-
-
-
-
+import "./Ownable.sol";
 
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
@@ -1940,7 +1935,7 @@ interface WETH {
     function withdraw(uint amount) external;
 }
 
-contract Rebase is ReentrancyGuard {
+contract Rebase is ReentrancyGuard, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -1982,25 +1977,25 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { }
 
-    function stake(address token, uint quantity, address app) external nonReentrant {
+    function stake(address token, uint quantity, address app) external nonReentrant onlyOwner {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    function stakeETH(address app) external payable nonReentrant {
+    function stakeETH(address app) external payable nonReentrant onlyOwner {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant {
+    function unstake(address token, uint quantity, address app) external nonReentrant onlyOwner {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant {
+    function unstakeETH(uint quantity, address app) external nonReentrant onlyOwner {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2008,7 +2003,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant onlyOwner {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
