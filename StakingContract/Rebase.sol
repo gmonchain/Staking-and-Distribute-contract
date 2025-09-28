@@ -122,11 +122,11 @@ pragma solidity ^0.8.0;
  * This contract is only required for intermediate, library-like contracts.
  */
 abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
+    function _msgSender() internal view virtual override returns (address) {
         return msg.sender;
     }
 
-    function _msgData() internal view virtual returns (bytes calldata) {
+    function _msgData() internal view virtual override returns (bytes calldata) {
         return msg.data;
     }
 
@@ -1889,7 +1889,7 @@ contract ReToken is ERC20 {
         _deployer = msg.sender;
     }
 
-    function initialize(address token) external {
+    function initialize(address token) external onlyDeployer {
         require(_deployer == address(0), "Initialized");
         _deployer = msg.sender;
         _token = token;
@@ -1929,13 +1929,13 @@ pragma solidity ^0.8.20;
 
 
 interface Rebased {
-    function onStake(address user, address token, uint256 quantity) external;
-    function onUnstake(address user, address token, uint256 quantity) external;
+    function onStake(address user, address token, uint quantity) external;
+    function onUnstake(address user, address token, uint quantity) external;
 }
 
 interface WETH {
     function deposit() external payable;
-    function withdraw(uint256 amount) external;
+    function withdraw(uint amount) external;
 }
 
 contract Rebase is ReentrancyGuard {
@@ -1957,20 +1957,20 @@ contract Rebase is ReentrancyGuard {
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
 
-    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
+    uint public constant UNSTAKE_GAS_LIMIT = 1000000;
 
     event Stake (
         address indexed user,
         address indexed app,
         address indexed token,
-        uint256 quantity
+        uint quantity
     );
 
     event Unstake (
         address indexed user,
         address indexed app,
         address indexed token,
-        uint256 quantity,
+        uint quantity,
         bool forced
     );
 
@@ -1980,7 +1980,7 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { }
 
-    function stake(address token, uint256 quantity, address app) external nonReentrant {
+    function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
@@ -1992,13 +1992,13 @@ contract Rebase is ReentrancyGuard {
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint256 quantity, address app) external nonReentrant {
+    function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint256 quantity, address app) external nonReentrant {
+    function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2006,7 +2006,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint256 quantity, address fromApp, address toApp) external nonReentrant {
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
@@ -2024,7 +2024,6 @@ contract Rebase is ReentrancyGuard {
         _appUsers[app].add(msg.sender);
 
         Rebased(app).onStake(msg.sender, token, quantity);
-
         emit Stake(msg.sender, app, token, quantity);
     }
 
@@ -2047,13 +2046,13 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
+        try Rebased(app).onUnstake{gas: UNSTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
         catch { forced = true; }
 
         emit Unstake(msg.sender, app, token, quantity, forced);
     }
 
-    function _getReToken(address token) internal returns (ReToken) {
+    function _getReToken(address token) internal view returns (ReToken) {
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
         if (!exists) {
@@ -2064,7 +2063,7 @@ contract Rebase is ReentrancyGuard {
         return ReToken(reToken);
     }
 
-    function _tokenToId(address token) internal pure returns (uint) {
+    function _tokenToId(address token) internal pure view returns (uint) {
         return uint(uint160(token));
     }
 
