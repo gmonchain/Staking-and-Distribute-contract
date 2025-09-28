@@ -1963,6 +1963,11 @@ contract Rebase is ReentrancyGuard, Ownable {
         uint quantity
     );
 
+    event ReTokenCloned (
+        address indexed token,
+        address indexed reToken
+    );
+
     event Unstake (
         address indexed user,
         address indexed app,
@@ -2056,6 +2061,7 @@ contract Rebase is ReentrancyGuard, Ownable {
             reToken = Clones.cloneDeterministic(_clonableToken, bytes32(tokenId));
             ReToken(reToken).initialize(token);
             _tokenReToken.set(tokenId, reToken);
+            emit ReTokenCloned(token, reToken);
         }
         return ReToken(reToken);
     }
