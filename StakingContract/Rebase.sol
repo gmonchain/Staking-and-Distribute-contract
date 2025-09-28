@@ -1985,6 +1985,9 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
+    /**
+     * @dev Initializes the contract by deploying a clonable ReToken contract.
+     */
     constructor() {
         _clonableToken = address(new ReToken());
     }
