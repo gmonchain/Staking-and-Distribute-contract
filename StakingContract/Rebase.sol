@@ -122,11 +122,11 @@ pragma solidity ^0.8.0;
  * This contract is only required for intermediate, library-like contracts.
  */
 abstract contract Context {
-    function _msgSender() internal view virtual override returns (address) {
+    function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 
-    function _msgData() internal view virtual override returns (bytes calldata) {
+    function _msgData() internal view virtual returns (bytes calldata) {
         return msg.data;
     }
 
@@ -1875,9 +1875,8 @@ abstract contract ReentrancyGuard {
 
 pragma solidity ^0.8.20;
 
-import "./Ownable.sol";
 
-contract ReToken is ERC20, Ownable {
+contract ReToken is ERC20 {
     address private _deployer;
     address private _token;
 
@@ -1886,12 +1885,11 @@ contract ReToken is ERC20, Ownable {
         _;
     }
 
-    constructor(string memory name_, string memory symbol_, address token_) ERC20(name_, symbol_) {
+    constructor() ERC20("", "") {
         _deployer = msg.sender;
-        _token = token_;
     }
 
-    function initialize(address token) external onlyDeployer {
+    function initialize(address token) external {
         require(_deployer == address(0), "Initialized");
         _deployer = msg.sender;
         _token = token;
@@ -1909,11 +1907,11 @@ contract ReToken is ERC20, Ownable {
         return ERC20(_token).decimals();
     }
 
-    function mint(address to, uint tokens) external onlyDeployer onlyOwner {
+    function mint(address to, uint tokens) external onlyDeployer {
         _mint(to, tokens);
     }
 
-    function burn(address from, uint tokens) external onlyDeployer onlyOwner {
+    function burn(address from, uint tokens) external onlyDeployer {
         _burn(from, tokens);
     }
 }
@@ -1923,7 +1921,12 @@ contract ReToken is ERC20, Ownable {
 
 pragma solidity ^0.8.20;
 
-import "./Ownable.sol";
+
+
+
+
+
+
 
 interface Rebased {
     function onStake(address user, address token, uint quantity) external;
@@ -1935,7 +1938,7 @@ interface WETH {
     function withdraw(uint amount) external;
 }
 
-contract Rebase is ReentrancyGuard, Ownable {
+contract Rebase is ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -1953,19 +1956,15 @@ contract Rebase is ReentrancyGuard, Ownable {
 
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
+    address private immutable _owner;
 
-    uint public constant UNSTAKE_GAS_LIMIT = 1000000;
+    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
     event Stake (
         address indexed user,
         address indexed app,
         address indexed token,
         uint quantity
-    );
-
-    event ReTokenCloned (
-        address indexed token,
-        address indexed reToken
     );
 
     event Unstake (
@@ -1977,102 +1976,97 @@ contract Rebase is ReentrancyGuard, Ownable {
     );
 
     constructor() {
-        _clonableToken = address(new ReToken("", "", address(0)));
+        _clonableToken = address(new ReToken());
+        _owner = msg.sender;
     }
 
     receive() external payable { }
 
-    function stake(address token, uint amount, address app) external nonReentrant onlyOwner {
-        require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Unable to transfer token");
-        _getReToken(token).mint(msg.sender, amount);
-        _stake(app, token, amount);
+    function stake(address token, uint quantity, address app) external nonReentrant {
+        require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
+        _getReToken(token).mint(msg.sender, quantity);
+        _stake(app, token, quantity);
     }
 
-    function stakeETH(address app) external payable nonReentrant onlyOwner {
+    function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint amount, address app) external nonReentrant onlyOwner {
-        _unstake(app, token, amount);
-        _getReToken(token).burn(msg.sender, amount);
-        require(ERC20(token).transfer(msg.sender, amount), "Unable to transfer token");
+    function unstake(address token, uint quantity, address app) external nonReentrant {
+        _unstake(app, token, quantity);
+        _getReToken(token).burn(msg.sender, quantity);
+        require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint amount, address app) external nonReentrant onlyOwner {
-        _unstake(app, _WETH, amount);
-        _getReToken(_WETH).burn(msg.sender, amount);
-        WETH(_WETH).withdraw(amount);
-        (bool transferred,) = msg.sender.call{value: amount}("");
+    function unstakeETH(uint quantity, address app) external nonReentrant {
+        _unstake(app, _WETH, quantity);
+        _getReToken(_WETH).burn(msg.sender, quantity);
+        WETH(_WETH).withdraw(quantity);
+        (bool transferred,) = msg.sender.call{value: quantity}("");
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint amount, address fromApp, address toApp) external nonReentrant onlyOwner {
-        _unstake(fromApp, token, amount);
-        _stake(toApp, token, amount);
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
+        _unstake(fromApp, token, quantity);
+        _stake(toApp, token, quantity);
     }
 
-    function _stake(address app, address token, uint amount) internal {
+    function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
-        EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
+        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
+        (,uint appStake) = _appTokenStakes[app].tryGet(token);
 
-        (,uint userStake) = userAppTokenStakes.tryGet(token);
-        (,uint appStake) = globalAppTokenStakes.tryGet(token);
-
-        require(amount > 0, "Invalid token quantity");
+        require(quantity > 0, "Invalid token quantity");
 
         user.apps.add(app);
-        userAppTokenStakes.set(token, userStake.add(amount));
-        globalAppTokenStakes.set(token, appStake.add(amount));
+        user.appTokenStakes[app].set(token, userStake.add(quantity));
+        _appTokenStakes[app].set(token, appStake.add(quantity));
         _appUsers[app].add(msg.sender);
 
-        Rebased(app).onStake(msg.sender, token, amount);
-        emit Stake(msg.sender, app, token, amount);
+        Rebased(app).onStake(msg.sender, token, quantity);
+
+        emit Stake(msg.sender, app, token, quantity);
     }
 
-    function _unstake(address app, address token, uint amount) internal {
+    function _unstake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
-        EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
+        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
+        (,uint appStake) = _appTokenStakes[app].tryGet(token);
 
-        (,uint userStake) = userAppTokenStakes.tryGet(token);
-        (,uint appStake) = globalAppTokenStakes.tryGet(token);
+        require(quantity > 0 && quantity <= userStake, "Invalid token quantity");
 
-        require(amount > 0 && amount <= userStake, "Invalid token quantity");
-
-        if (userStake == amount) {
-            userAppTokenStakes.remove(token);
-            if (userAppTokenStakes.length() == 0) {
+        if (userStake == quantity) {
+            user.appTokenStakes[app].remove(token);
+            if (user.appTokenStakes[app].length() == 0) {
                 user.apps.remove(app);
                 _appUsers[app].remove(msg.sender);
             }
         } else {
-            userAppTokenStakes.set(token, userStake.sub(amount));
+            user.appTokenStakes[app].set(token, userStake.sub(quantity));
         }
-        globalAppTokenStakes.set(token, appStake.sub(amount));
+        _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNSTAKE_GAS_LIMIT}(msg.sender, token, amount) { }
+        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
         catch { forced = true; }
 
-        emit Unstake(msg.sender, app, token, amount, forced);
+        emit Unstake(msg.sender, app, token, quantity, forced);
     }
 
-    function _getReToken(address token) internal view returns (ReToken) {
+    function _getReToken(address token) internal returns (ReToken) {
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
         if (!exists) {
             reToken = Clones.cloneDeterministic(_clonableToken, bytes32(tokenId));
             ReToken(reToken).initialize(token);
             _tokenReToken.set(tokenId, reToken);
-            emit ReTokenCloned(token, reToken);
         }
         return ReToken(reToken);
     }
 
-    function _tokenToId(address token) internal pure view returns (uint) {
+    function _tokenToId(address token) internal pure returns (uint) {
         return uint(uint160(token));
     }
 
