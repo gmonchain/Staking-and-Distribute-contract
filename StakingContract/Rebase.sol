@@ -1957,6 +1957,7 @@ contract Rebase is ReentrancyGuard {
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
     address private immutable _owner;
+    bool private _paused;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
@@ -1978,6 +1979,7 @@ contract Rebase is ReentrancyGuard {
     constructor() {
         _clonableToken = address(new ReToken());
         _owner = msg.sender;
+        _paused = false;
     }
 
     receive() external payable { }
@@ -1991,6 +1993,14 @@ contract Rebase is ReentrancyGuard {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
+    }
+
+    function pauseStaking() external onlyOwner {
+        // Pause staking logic here
+    }
+
+    function resumeStaking() external onlyOwner {
+        // Resume staking logic here
     }
 
     function stakeETH(address app) external payable nonReentrant {
