@@ -2015,8 +2015,11 @@ contract Rebase is ReentrancyGuard, Ownable {
 
     function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
-        (,uint appStake) = _appTokenStakes[app].tryGet(token);
+        EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
+        EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
+
+        (,uint userStake) = userAppTokenStakes.tryGet(token);
+        (,uint appStake) = globalAppTokenStakes.tryGet(token);
 
         require(quantity > 0, "Invalid token quantity");
 
