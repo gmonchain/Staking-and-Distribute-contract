@@ -2079,6 +2079,12 @@ contract Rebase is ReentrancyGuard {
         emit Stake(msg.sender, app, token, quantity);
     }
 
+    /**
+     * @dev Internal function to handle unstaking logic.
+     * @param app The address of the application to unstake from.
+     * @param token The address of the ERC20 token to unstake.
+     * @param quantity The amount of tokens to unstake.
+     */
     function _unstake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
