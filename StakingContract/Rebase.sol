@@ -2118,6 +2118,7 @@ contract Rebase is ReentrancyGuard {
      * @return ReToken The ReToken contract instance.
      */
     function _getReToken(address token) internal returns (ReToken) {
+        // This function retrieves or creates a ReToken for a given token.
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
         if (!exists) {
