@@ -2069,7 +2069,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getUserApps(address user) external view returns (address[] memory) {
-        return _users[user].apps.values();
+        return _users[user].apps.values(); // Returns all apps associated with the user
     }
 
     function getUserAppAt(address user, uint index) external view returns (address) {
