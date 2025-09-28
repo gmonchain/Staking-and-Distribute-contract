@@ -2187,6 +2187,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getNumAppStakes(address app) external view returns (uint) {
+        // Returns the number of different tokens staked in a given application.
         return _appTokenStakes[app].length();
     }
 
