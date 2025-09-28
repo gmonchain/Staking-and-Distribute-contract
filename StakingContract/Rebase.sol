@@ -1963,14 +1963,14 @@ contract Rebase is ReentrancyGuard {
         address indexed user,
         address indexed app,
         address indexed token,
-        uint quantity
+        uint256 quantity
     );
 
     event Unstake (
         address indexed user,
         address indexed app,
         address indexed token,
-        uint quantity,
+        uint256 quantity,
         bool forced
     );
 
