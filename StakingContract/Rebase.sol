@@ -1959,7 +1959,7 @@ contract Rebase is ReentrancyGuard {
     address private immutable _owner;
     bool private _paused;
 
-    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
+    uint private _unrestakeGasLimit = 1000000;
 
     event Stake (
         address indexed user,
@@ -2075,7 +2075,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
+        try Rebased(app).onUnstake{gas: _unrestakeGasLimit}(msg.sender, token, quantity) { }
         catch { forced = true; }
 
         emit Unstake(msg.sender, app, token, quantity, forced);
@@ -2168,5 +2168,13 @@ contract Rebase is ReentrancyGuard {
 
     function getReToken(address token) external view returns (address) {
         return _tokenReToken.get(_tokenToId(token));
+    }
+
+    function getUnrestakeGasLimit() external view returns (uint) {
+        return _unrestakeGasLimit;
+    }
+
+    function setUnrestakeGasLimit(uint newLimit) external onlyOwner {
+        _unrestakeGasLimit = newLimit;
     }
 }
