@@ -1978,7 +1978,7 @@ contract Rebase is ReentrancyGuard {
         _clonableToken = address(new ReToken());
     }
 
-    receive() external payable { }
+    receive() external payable { } // Allows contract to receive Ether
 
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
