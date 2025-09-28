@@ -1935,7 +1935,7 @@ interface Rebased {
 
 interface WETH {
     function deposit() external payable;
-    function withdraw(uint amount) external;
+    function withdraw(uint256 amount) external;
 }
 
 contract Rebase is ReentrancyGuard {
