@@ -1962,6 +1962,7 @@ contract Rebase is ReentrancyGuard {
 
     // Address of the WETH contract on Optimism.
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
+    // The address of the clonable ReToken contract, used to create new ReToken instances.
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
