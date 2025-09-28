@@ -1875,8 +1875,9 @@ abstract contract ReentrancyGuard {
 
 pragma solidity ^0.8.20;
 
+import "./Ownable.sol";
 
-contract ReToken is ERC20 {
+contract ReToken is ERC20, Ownable {
     address private _deployer;
     address private _token;
 
@@ -1885,8 +1886,9 @@ contract ReToken is ERC20 {
         _;
     }
 
-    constructor() ERC20("", "") {
+    constructor(string memory name_, string memory symbol_, address token_) ERC20(name_, symbol_) {
         _deployer = msg.sender;
+        _token = token_;
     }
 
     function initialize(address token) external onlyDeployer {
@@ -1907,11 +1909,11 @@ contract ReToken is ERC20 {
         return ERC20(_token).decimals();
     }
 
-    function mint(address to, uint tokens) external onlyDeployer {
+    function mint(address to, uint tokens) external onlyDeployer onlyOwner {
         _mint(to, tokens);
     }
 
-    function burn(address from, uint tokens) external onlyDeployer {
+    function burn(address from, uint tokens) external onlyDeployer onlyOwner {
         _burn(from, tokens);
     }
 }
@@ -1975,7 +1977,7 @@ contract Rebase is ReentrancyGuard {
     );
 
     constructor() {
-        _clonableToken = address(new ReToken());
+        _clonableToken = address(new ReToken("", "", address(0)));
     }
 
     receive() external payable { }
