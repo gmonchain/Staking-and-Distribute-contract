@@ -1946,6 +1946,7 @@ contract Rebase is ReentrancyGuard {
     using SafeMath for uint256;
 
     struct User {
+        // Stores the applications a user has staked in.
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
