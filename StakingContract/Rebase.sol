@@ -2017,6 +2017,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _stake(address app, address token, uint quantity) internal {
+        // Internal function to handle staking logic.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
