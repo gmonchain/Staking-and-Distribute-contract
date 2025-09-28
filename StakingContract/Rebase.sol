@@ -2026,7 +2026,7 @@ contract Rebase is ReentrancyGuard {
         unstake(token, userStake, app);
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant {
+    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
