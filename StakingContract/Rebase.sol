@@ -1960,6 +1960,7 @@ contract Rebase is ReentrancyGuard {
     // Mapping from application address to a set of users who have staked in that app.
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
+    // Address of the WETH contract on Optimism.
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
 
