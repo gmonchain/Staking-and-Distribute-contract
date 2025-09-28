@@ -1980,7 +1980,7 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { } // Allows contract to receive Ether
 
-    function stake(address token, uint quantity, address app) external nonReentrant {
+    function stake(address token, uint quantity, address app) external nonReentrant { // Stakes a specified quantity of tokens for an app
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
