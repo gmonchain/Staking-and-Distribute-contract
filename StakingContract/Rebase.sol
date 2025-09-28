@@ -2009,6 +2009,10 @@ contract Rebase is ReentrancyGuard {
         _stake(app, token, quantity);
     }
 
+    /**
+     * @dev Stakes `msg.value` of Ether (wrapped as WETH) for `msg.sender` in `app`.
+     * @param app The address of the application to stake in.
+     */
     function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
