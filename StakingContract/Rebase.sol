@@ -2087,6 +2087,7 @@ contract Rebase is ReentrancyGuard {
      * @param quantity The amount of tokens to unstake.
      */
     function _unstake(address app, address token, uint quantity) internal {
+        // This function handles the unstaking logic.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
