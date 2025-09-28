@@ -1989,7 +1989,12 @@ contract Rebase is ReentrancyGuard {
         _;
     }
 
-    function stake(address token, uint quantity, address app) external nonReentrant {
+    modifier whenNotPaused() {
+        require(!_paused, "Pausable: paused");
+        _;
+    }
+
+    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
