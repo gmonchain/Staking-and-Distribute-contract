@@ -1956,10 +1956,8 @@ contract Rebase is ReentrancyGuard {
 
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
-    address private immutable _owner;
-    bool private _paused;
 
-    uint private _unrestakeGasLimit = 1000000;
+    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
     event Stake (
         address indexed user,
@@ -1978,55 +1976,29 @@ contract Rebase is ReentrancyGuard {
 
     constructor() {
         _clonableToken = address(new ReToken());
-        _owner = msg.sender;
-        _paused = false;
     }
 
     receive() external payable { }
 
-    modifier onlyOwner() {
-        require(msg.sender == _owner, "Only owner can call this function");
-        _;
-    }
-
-    modifier whenNotPaused() {
-        require(!_paused, "Pausable: paused");
-        _;
-    }
-
-    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
+    function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    function pauseStaking() external onlyOwner {
-        _paused = true;
-    }
-
-    function resumeStaking() external onlyOwner {
-        _paused = false;
-    }
-
-    function stakeETH(address app) external payable nonReentrant whenNotPaused {
+    function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
+    function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeAll(address app, address token) external nonReentrant {
-        uint userStake = getUserAppStake(msg.sender, app, token);
-        require(userStake > 0, "No stake found for this user and app");
-        unstake(token, userStake, app);
-    }
-
-    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused {
+    function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2034,7 +2006,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant whenNotPaused {
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
@@ -2075,7 +2047,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: _unrestakeGasLimit}(msg.sender, token, quantity) { }
+        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
         catch { forced = true; }
 
         emit Unstake(msg.sender, app, token, quantity, forced);
@@ -2093,7 +2065,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _tokenToId(address token) internal pure returns (uint) {
-        return uint(uint160(token));
+        return uint(uint160(token)); // Convert address to uint for token ID
     }
 
     function getUserApps(address user) external view returns (address[] memory) {
@@ -2168,13 +2140,5 @@ contract Rebase is ReentrancyGuard {
 
     function getReToken(address token) external view returns (address) {
         return _tokenReToken.get(_tokenToId(token));
-    }
-
-    function getUnrestakeGasLimit() external view returns (uint) {
-        return _unrestakeGasLimit;
-    }
-
-    function setUnrestakeGasLimit(uint newLimit) external onlyOwner {
-        _unrestakeGasLimit = newLimit;
     }
 }
