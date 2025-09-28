@@ -1965,6 +1965,7 @@ contract Rebase is ReentrancyGuard {
     // The address of the clonable ReToken contract, used to create new ReToken instances.
     address private immutable _clonableToken;
 
+    // Gas limit for the onUnstake callback, to prevent reentrancy issues.
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
     event Stake (
