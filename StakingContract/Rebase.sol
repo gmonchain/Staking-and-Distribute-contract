@@ -2093,6 +2093,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getAppUsers(address app) external view returns (address[] memory) {
+        // Returns a list of users who have staked in a given application.
         return _appUsers[app].values();
     }
 
