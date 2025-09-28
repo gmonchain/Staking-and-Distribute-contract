@@ -1966,7 +1966,7 @@ contract Rebase is ReentrancyGuard {
         uint quantity
     );
 
-    event Unstake (
+    event Unstake ( // Emitted when tokens are unstaked
         address indexed user,
         address indexed app,
         address indexed token,
