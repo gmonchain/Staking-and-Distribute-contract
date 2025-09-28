@@ -2140,6 +2140,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getUserAppAt(address user, uint index) external view returns (address) {
+        // Returns the application address at a specific index for a given user.
         return _users[user].apps.at(index);
     }
 
