@@ -2198,6 +2198,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getUserAppStakes(address user, address app) external view returns (address[] memory, uint[] memory) {
+        // Returns all token stakes by a user in a given application.
         EnumerableMap.AddressToUintMap storage userStakes = _users[user].appTokenStakes[app];
         address[] memory tokens = userStakes.keys();
         uint[] memory stakes = new uint[](tokens.length);
