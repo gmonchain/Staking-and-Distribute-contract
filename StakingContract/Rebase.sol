@@ -1996,11 +1996,11 @@ contract Rebase is ReentrancyGuard {
     }
 
     function pauseStaking() external onlyOwner {
-        // Pause staking logic here
+        _paused = true;
     }
 
     function resumeStaking() external onlyOwner {
-        // Resume staking logic here
+        _paused = false;
     }
 
     function stakeETH(address app) external payable nonReentrant {
