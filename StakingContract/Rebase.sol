@@ -1955,6 +1955,7 @@ contract Rebase is ReentrancyGuard {
     EnumerableMap.UintToAddressMap private _tokenReToken;
     // Mapping from user address to their User struct, containing their staked apps and tokens.
     mapping(address => User) private _users;
+    // Mapping from application address to a mapping of staked tokens and their quantities.
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
