@@ -1939,6 +1939,7 @@ interface WETH {
 }
 
 contract Rebase is ReentrancyGuard {
+    // This contract manages staking and unstaking of tokens for various applications.
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -1954,19 +1955,19 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private constant _WETH = 0x4200000000000000000000000000000000000006; // Address of Wrapped Ether
+    address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
 
-    uint public constant UNRESTAKE_GAS_LIMIT = 1000000; // Gas limit for unstake callback
+    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
-    event Stake ( // Emitted when tokens are staked
+    event Stake (
         address indexed user,
         address indexed app,
         address indexed token,
         uint quantity
     );
 
-    event Unstake ( // Emitted when tokens are unstaked
+    event Unstake (
         address indexed user,
         address indexed app,
         address indexed token,
@@ -1974,31 +1975,31 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
-    constructor() { // Initializes the clonable token
+    constructor() {
         _clonableToken = address(new ReToken());
     }
 
-    receive() external payable { } // Allows contract to receive Ether
+    receive() external payable { }
 
-    function stake(address token, uint quantity, address app) external nonReentrant { // Stakes a specified quantity of tokens for an app
+    function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    function stakeETH(address app) external payable nonReentrant { // Stakes ETH for an app
+    function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant { // Unstakes a specified quantity of tokens from an app
+    function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant { // Unstakes ETH from an app
+    function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
