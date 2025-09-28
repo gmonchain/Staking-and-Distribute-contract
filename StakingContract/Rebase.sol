@@ -2108,6 +2108,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getAppStake(address app, address token) external view returns (uint) {
+        // Returns the total stake of a specific token in a given application.
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
         return appStake;
     }
