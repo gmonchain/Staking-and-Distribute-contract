@@ -2044,6 +2044,13 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
+    /**
+     * @dev Restakes `quantity` of `token` from `fromApp` to `toApp` for `msg.sender`.
+     * @param token The address of the ERC20 token to restake.
+     * @param quantity The amount of tokens to restake.
+     * @param fromApp The address of the application to unstake from.
+     * @param toApp The address of the application to stake in.
+     */
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
