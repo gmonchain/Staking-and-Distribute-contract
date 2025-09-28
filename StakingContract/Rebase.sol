@@ -2110,6 +2110,11 @@ contract Rebase is ReentrancyGuard {
         emit Unstake(msg.sender, app, token, quantity, forced);
     }
 
+    /**
+     * @dev Returns the ReToken contract address for a given token. Deploys a new ReToken contract if one does not exist.
+     * @param token The address of the ERC20 token.
+     * @return ReToken The ReToken contract instance.
+     */
     function _getReToken(address token) internal returns (ReToken) {
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
