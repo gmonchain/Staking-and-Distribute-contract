@@ -2034,21 +2034,24 @@ contract Rebase is ReentrancyGuard, Ownable {
 
     function _unstake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
-        (,uint appStake) = _appTokenStakes[app].tryGet(token);
+        EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
+        EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
+
+        (,uint userStake) = userAppTokenStakes.tryGet(token);
+        (,uint appStake) = globalAppTokenStakes.tryGet(token);
 
         require(quantity > 0 && quantity <= userStake, "Invalid token quantity");
 
         if (userStake == quantity) {
-            user.appTokenStakes[app].remove(token);
-            if (user.appTokenStakes[app].length() == 0) {
+            userAppTokenStakes.remove(token);
+            if (userAppTokenStakes.length() == 0) {
                 user.apps.remove(app);
                 _appUsers[app].remove(msg.sender);
             }
         } else {
-            user.appTokenStakes[app].set(token, userStake.sub(quantity));
+            userAppTokenStakes.set(token, userStake.sub(quantity));
         }
-        _appTokenStakes[app].set(token, appStake.sub(quantity));
+        globalAppTokenStakes.set(token, appStake.sub(quantity));
 
         bool forced = false;
         try Rebased(app).onUnstake{gas: UNSTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
