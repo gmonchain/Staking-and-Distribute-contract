@@ -1982,10 +1982,10 @@ contract Rebase is ReentrancyGuard, Ownable {
 
     receive() external payable { }
 
-    function stake(address token, uint quantity, address app) external nonReentrant onlyOwner {
-        require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
-        _getReToken(token).mint(msg.sender, quantity);
-        _stake(app, token, quantity);
+    function stake(address token, uint amount, address app) external nonReentrant onlyOwner {
+        require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Unable to transfer token");
+        _getReToken(token).mint(msg.sender, amount);
+        _stake(app, token, amount);
     }
 
     function stakeETH(address app) external payable nonReentrant onlyOwner {
@@ -1994,26 +1994,26 @@ contract Rebase is ReentrancyGuard, Ownable {
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant onlyOwner {
-        _unstake(app, token, quantity);
-        _getReToken(token).burn(msg.sender, quantity);
-        require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
+    function unstake(address token, uint amount, address app) external nonReentrant onlyOwner {
+        _unstake(app, token, amount);
+        _getReToken(token).burn(msg.sender, amount);
+        require(ERC20(token).transfer(msg.sender, amount), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant onlyOwner {
-        _unstake(app, _WETH, quantity);
-        _getReToken(_WETH).burn(msg.sender, quantity);
-        WETH(_WETH).withdraw(quantity);
-        (bool transferred,) = msg.sender.call{value: quantity}("");
+    function unstakeETH(uint amount, address app) external nonReentrant onlyOwner {
+        _unstake(app, _WETH, amount);
+        _getReToken(_WETH).burn(msg.sender, amount);
+        WETH(_WETH).withdraw(amount);
+        (bool transferred,) = msg.sender.call{value: amount}("");
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant onlyOwner {
-        _unstake(fromApp, token, quantity);
-        _stake(toApp, token, quantity);
+    function restake(address token, uint amount, address fromApp, address toApp) external nonReentrant onlyOwner {
+        _unstake(fromApp, token, amount);
+        _stake(toApp, token, amount);
     }
 
-    function _stake(address app, address token, uint quantity) internal {
+    function _stake(address app, address token, uint amount) internal {
         User storage user = _users[msg.sender];
         EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
         EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
@@ -2021,18 +2021,18 @@ contract Rebase is ReentrancyGuard, Ownable {
         (,uint userStake) = userAppTokenStakes.tryGet(token);
         (,uint appStake) = globalAppTokenStakes.tryGet(token);
 
-        require(quantity > 0, "Invalid token quantity");
+        require(amount > 0, "Invalid token quantity");
 
         user.apps.add(app);
-        user.appTokenStakes[app].set(token, userStake.add(quantity));
-        _appTokenStakes[app].set(token, appStake.add(quantity));
+        userAppTokenStakes.set(token, userStake.add(amount));
+        globalAppTokenStakes.set(token, appStake.add(amount));
         _appUsers[app].add(msg.sender);
 
-        Rebased(app).onStake(msg.sender, token, quantity);
-        emit Stake(msg.sender, app, token, quantity);
+        Rebased(app).onStake(msg.sender, token, amount);
+        emit Stake(msg.sender, app, token, amount);
     }
 
-    function _unstake(address app, address token, uint quantity) internal {
+    function _unstake(address app, address token, uint amount) internal {
         User storage user = _users[msg.sender];
         EnumerableMap.AddressToUintMap storage userAppTokenStakes = user.appTokenStakes[app];
         EnumerableMap.AddressToUintMap storage globalAppTokenStakes = _appTokenStakes[app];
@@ -2040,24 +2040,24 @@ contract Rebase is ReentrancyGuard, Ownable {
         (,uint userStake) = userAppTokenStakes.tryGet(token);
         (,uint appStake) = globalAppTokenStakes.tryGet(token);
 
-        require(quantity > 0 && quantity <= userStake, "Invalid token quantity");
+        require(amount > 0 && amount <= userStake, "Invalid token quantity");
 
-        if (userStake == quantity) {
+        if (userStake == amount) {
             userAppTokenStakes.remove(token);
             if (userAppTokenStakes.length() == 0) {
                 user.apps.remove(app);
                 _appUsers[app].remove(msg.sender);
             }
         } else {
-            userAppTokenStakes.set(token, userStake.sub(quantity));
+            userAppTokenStakes.set(token, userStake.sub(amount));
         }
-        globalAppTokenStakes.set(token, appStake.sub(quantity));
+        globalAppTokenStakes.set(token, appStake.sub(amount));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNSTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
+        try Rebased(app).onUnstake{gas: UNSTAKE_GAS_LIMIT}(msg.sender, token, amount) { }
         catch { forced = true; }
 
-        emit Unstake(msg.sender, app, token, quantity, forced);
+        emit Unstake(msg.sender, app, token, amount, forced);
     }
 
     function _getReToken(address token) internal view returns (ReToken) {
