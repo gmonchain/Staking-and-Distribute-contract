@@ -1957,7 +1957,7 @@ contract Rebase is ReentrancyGuard {
     address private constant _WETH = 0x4200000000000000000000000000000000000006; // Address of Wrapped Ether
     address private immutable _clonableToken;
 
-    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
+    uint public constant UNRESTAKE_GAS_LIMIT = 1000000; // Gas limit for unstake callback
 
     event Stake (
         address indexed user,
