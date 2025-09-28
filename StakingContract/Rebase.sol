@@ -2130,6 +2130,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _tokenToId(address token) internal pure returns (uint) {
+        // This function converts a token address to a uint ID.
         return uint(uint160(token));
     }
 
