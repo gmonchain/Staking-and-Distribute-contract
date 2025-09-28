@@ -1959,7 +1959,7 @@ contract Rebase is ReentrancyGuard {
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000; // Gas limit for unstake callback
 
-    event Stake (
+    event Stake ( // Emitted when tokens are staked
         address indexed user,
         address indexed app,
         address indexed token,
