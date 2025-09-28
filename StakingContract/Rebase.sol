@@ -2056,6 +2056,12 @@ contract Rebase is ReentrancyGuard {
         _stake(toApp, token, quantity);
     }
 
+    /**
+     * @dev Internal function to handle staking logic.
+     * @param app The address of the application to stake in.
+     * @param token The address of the ERC20 token to stake.
+     * @param quantity The amount of tokens to stake.
+     */
     function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
