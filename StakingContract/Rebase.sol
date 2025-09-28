@@ -2006,7 +2006,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
+    function restake(address token, uint256 quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
