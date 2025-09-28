@@ -2135,6 +2135,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getUserApps(address user) external view returns (address[] memory) {
+        // Returns a list of applications a user has staked in.
         return _users[user].apps.values();
     }
 
