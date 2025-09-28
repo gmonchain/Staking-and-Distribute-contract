@@ -1954,7 +1954,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private constant _WETH = 0x4200000000000000000000000000000000000006;
+    address private constant _WETH = 0x4200000000000000000000000000000000000006; // Address of Wrapped Ether
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
@@ -1981,28 +1981,24 @@ contract Rebase is ReentrancyGuard {
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
-        // Transfers tokens from the caller to the contract and mints reTokens.
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
     function stakeETH(address app) external payable nonReentrant {
-        // Deposits ETH, wraps it to WETH, and mints reTokens.
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
     function unstake(address token, uint quantity, address app) external nonReentrant {
-        // Unstakes tokens, burns reTokens, and transfers tokens back to the caller.
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
     function unstakeETH(uint quantity, address app) external nonReentrant {
-        // Unstakes WETH, burns reTokens, withdraws WETH, and transfers ETH back to the caller.
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2011,13 +2007,11 @@ contract Rebase is ReentrancyGuard {
     }
 
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
-        // Unstakes from one app and stakes to another with the same tokens.
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
 
     function _stake(address app, address token, uint quantity) internal {
-        // Internal function to handle staking logic.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
@@ -2035,7 +2029,6 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _unstake(address app, address token, uint quantity) internal {
-        // Internal function to handle unstaking logic.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
@@ -2061,7 +2054,6 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _getReToken(address token) internal returns (ReToken) {
-        // Retrieves or creates a ReToken instance for a given token.
         uint tokenId = _tokenToId(token);
         (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
         if (!exists) {
@@ -2073,48 +2065,39 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _tokenToId(address token) internal pure returns (uint) {
-        // Converts a token address to a unique uint ID.
         return uint(uint160(token));
     }
 
     function getUserApps(address user) external view returns (address[] memory) {
-        // Returns a list of applications the user has staked in.
         return _users[user].apps.values();
     }
 
     function getUserAppAt(address user, uint index) external view returns (address) {
-        // Returns the application address at a specific index for a given user.
         return _users[user].apps.at(index);
     }
 
     function getNumUserApps(address user) external view returns (uint) {
-        // Returns the number of applications a user has staked in.
         return _users[user].apps.length();
     }
 
     function getAppUsers(address app) external view returns (address[] memory) {
-        // Returns a list of users who have staked in a given application.
         return _appUsers[app].values();
     }
 
     function getAppUserAt(address app, uint index) external view returns (address) {
-        // Returns the user address at a specific index for a given application.
         return _appUsers[app].at(index);
     }
 
     function getNumAppUsers(address app) external view returns (uint) {
-        // Returns the number of users who have staked in a given application.
         return _appUsers[app].length();
     }
 
     function getAppStake(address app, address token) external view returns (uint) {
-        // Returns the total stake of a specific token in a given application.
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
         return appStake;
     }
 
     function getAppStakes(address app) external view returns (address[] memory, uint[] memory) {
-        // Returns all staked tokens and their quantities for a given application.
         EnumerableMap.AddressToUintMap storage appStakes = _appTokenStakes[app];
         address[] memory tokens = appStakes.keys();
         uint[] memory stakes = new uint[](tokens.length);
@@ -2125,7 +2108,6 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getAppStakeAt(address app, uint index) external view returns (address, uint) {
-        // Returns the staked token and its quantity at a specific index for a given application.
         return _appTokenStakes[app].at(index);
     }
 
