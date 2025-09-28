@@ -2192,6 +2192,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getUserAppStake(address user, address app, address token) external view returns (uint) {
+        // Returns the stake of a specific token by a user in a given application.
         (,uint userStake) = _users[user].appTokenStakes[app].tryGet(token);
         return userStake;
     }
