@@ -2160,6 +2160,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function getNumAppUsers(address app) external view returns (uint) {
+        // Returns the number of users who have staked in a given application.
         return _appUsers[app].length();
     }
 
