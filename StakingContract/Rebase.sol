@@ -1974,7 +1974,7 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
-    constructor() {
+    constructor() { // Initializes the clonable token
         _clonableToken = address(new ReToken());
     }
 
