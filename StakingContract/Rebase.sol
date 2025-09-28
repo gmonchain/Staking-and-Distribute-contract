@@ -1957,6 +1957,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => User) private _users;
     // Mapping from application address to a mapping of staked tokens and their quantities.
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
+    // Mapping from application address to a set of users who have staked in that app.
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
