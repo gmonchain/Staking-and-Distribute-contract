@@ -1982,6 +1982,11 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { }
 
+    modifier onlyOwner() {
+        require(msg.sender == _owner, "Only owner can call this function");
+        _;
+    }
+
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
