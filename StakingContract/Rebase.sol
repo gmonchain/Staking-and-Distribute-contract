@@ -1964,10 +1964,12 @@ contract Rebase is ReentrancyGuard {
 
     function pause() external onlyOwner {
         _paused = true;
+        emit Paused(msg.sender);
     }
 
     function unpause() external onlyOwner {
         _paused = false;
+        emit Unpaused(msg.sender);
     }
 
     struct User {
