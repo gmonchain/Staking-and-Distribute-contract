@@ -1880,6 +1880,8 @@ contract ReToken is ERC20 {
     address public _deployer;
     address private _token;
 
+    event ReTokenInitialized(address indexed token);
+
     modifier onlyDeployer {
         require(msg.sender == _deployer, "Only callable by deployer");
         _;
@@ -1893,6 +1895,7 @@ contract ReToken is ERC20 {
         require(_deployer == address(0), "Initialized");
         _deployer = msg.sender;
         _token = token;
+        emit ReTokenInitialized(token);
     }
 
     function name() public view override returns (string memory) {
