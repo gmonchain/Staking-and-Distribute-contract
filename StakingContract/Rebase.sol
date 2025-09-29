@@ -1976,19 +1976,18 @@ contract Rebase is ReentrancyGuard {
 
     constructor() {
         _clonableToken = address(new ReToken());
+        _deployer = msg.sender;
     }
 
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
-        // Transfers tokens from the caller to the contract and mints reTokens for the user.
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
     function stakeETH(address app) external payable nonReentrant {
-        // Deposits ETH, wraps it to WETH, and then stakes it for the user.
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
