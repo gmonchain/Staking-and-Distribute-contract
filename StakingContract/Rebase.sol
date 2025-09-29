@@ -2012,11 +2012,12 @@ contract Rebase is ReentrancyGuard {
     event Paused(address account);
     event Unpaused(address account);
 
+    event SetApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     constructor() {
         _clonableToken = address(new ReToken());
-        _deployer = msg.sender;
         _owner = msg.sender; // Set the contract deployer as the initial owner
     }
 
