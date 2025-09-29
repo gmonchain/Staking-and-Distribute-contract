@@ -609,7 +609,6 @@ pragma solidity ^0.8.0;
  * now has built in overflow checking.
  */
 library SafeMath {
-    uint256 internal constant MAX_UINT256 = type(uint256).max;
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
      *
@@ -1878,15 +1877,23 @@ pragma solidity ^0.8.20;
 
 
 contract ReToken is ERC20 {
+    address public _deployer;
     address private _token;
 
+    event ReTokenInitialized(address indexed token);
+
+    modifier onlyDeployer {
+        require(msg.sender == _deployer, "Only callable by deployer");
+        _;
+    }
+
     constructor() ERC20("", "") {
-        // _deployer = msg.sender;
+        _deployer = msg.sender;
     }
 
     function initialize(address token) external {
-        require(_token == address(0), "Initialized"); // Changed from _deployer == address(0)
-        // _deployer = msg.sender;
+        require(_deployer == address(0), "Initialized");
+        _deployer = msg.sender;
         _token = token;
         emit ReTokenInitialized(token);
     }
@@ -1903,11 +1910,11 @@ contract ReToken is ERC20 {
         return ERC20(_token).decimals();
     }
 
-    function mint(address to, uint tokens) external {
+    function mint(address to, uint tokens) external onlyDeployer {
         _mint(to, tokens);
     }
 
-    function burn(address from, uint tokens) external {
+    function burn(address from, uint tokens) external onlyDeployer {
         _burn(from, tokens);
     }
 
@@ -1965,7 +1972,7 @@ contract Rebase is ReentrancyGuard {
         emit Unpaused(msg.sender);
     }
 
-    struct User {
+    struct User { // Stores user-specific staking information
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
@@ -1976,14 +1983,6 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
     address private _owner;
-
-    address private _pendingOwner;
-
-    bool private _emergencyStop;
-
-    mapping(address => mapping(address => bool)) private _operatorApprovals;
-
-    mapping(address => uint) private _totalStaked;
 
     modifier onlyOwner() {
         require(msg.sender == _owner, "Ownable: caller is not the owner");
@@ -2013,14 +2012,7 @@ contract Rebase is ReentrancyGuard {
     event Paused(address account);
     event Unpaused(address account);
 
-    event SetApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
-
-    event EmergencyStopped(address account);
-
-    event EmergencyReleased(address account);
 
     constructor() {
         _clonableToken = address(new ReToken());
@@ -2029,25 +2021,25 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { /* solhint-disable-line no-empty-blocks */ }
 
-    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused whenNotEmergencyStopped {
+    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    function stakeETH(address app) external payable nonReentrant whenNotPaused whenNotEmergencyStopped {
+    function stakeETH(address app) external payable nonReentrant whenNotPaused {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant whenNotPaused whenNotEmergencyStopped {
+    function unstake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused whenNotEmergencyStopped {
+    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2055,7 +2047,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant whenNotPaused whenNotEmergencyStopped {
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant whenNotPaused {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
@@ -2071,8 +2063,6 @@ contract Rebase is ReentrancyGuard {
         user.appTokenStakes[app].set(token, userStake.add(quantity));
         _appTokenStakes[app].set(token, appStake.add(quantity));
         _appUsers[app].add(msg.sender);
-
-        _totalStaked[token] = _totalStaked[token].add(quantity);
 
         Rebased(app).onStake(msg.sender, token, quantity, app);
 
@@ -2096,8 +2086,6 @@ contract Rebase is ReentrancyGuard {
             user.appTokenStakes[app].set(token, userStake.sub(quantity));
         }
         _appTokenStakes[app].set(token, appStake.sub(quantity));
-
-        _totalStaked[token] = _totalStaked[token].sub(quantity);
 
         bool forced = false;
         try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity, app) { }
@@ -2191,10 +2179,6 @@ contract Rebase is ReentrancyGuard {
         return _users[user].appTokenStakes[app].length();
     }
 
-    function getTotalStaked(address token) external view returns (uint) {
-        return _totalStaked[token];
-    }
-
     function getReToken(address token) external view returns (address) {
         return _tokenReToken.get(_tokenToId(token));
     }
@@ -2214,55 +2198,14 @@ contract Rebase is ReentrancyGuard {
         _owner = address(0);
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferStarted(_owner, newOwner);
-        _pendingOwner = newOwner;
-    }
-
-    function transferOwnership(address newOwner, bool direct) external onlyOwner {
-        if (direct) {
-            emit OwnershipTransferred(_owner, newOwner);
-            _owner = newOwner;
-        } else {
-            transferOwnership(newOwner);
-        }
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
     }
 
     function owner() public view returns (address) {
         return _owner;
-    }
-
-    function acceptOwnership() external {
-        require(msg.sender == _pendingOwner, "Ownable2Step: caller is not the pending owner");
-        address oldOwner = _owner;
-        _owner = _pendingOwner;
-        _pendingOwner = address(0);
-        emit OwnershipTransferred(oldOwner, _owner);
-    }
-
-    function emergencyStop() external onlyOwner {
-        _emergencyStop = true;
-        emit EmergencyStopped(msg.sender);
-    }
-
-    function releaseEmergencyStop() external onlyOwner {
-        _emergencyStop = false;
-        emit EmergencyReleased(msg.sender);
-    }
-
-    modifier whenNotEmergencyStopped() {
-        require(!_emergencyStop, "EmergencyStopped: Emergency stop is active");
-        _;
-    }
-
-    function setApprovalForAll(address operator, bool approved) external {
-        _operatorApprovals[msg.sender][operator] = approved;
-        emit SetApprovalForAll(msg.sender, operator, approved);
-    }
-
-    function isApprovedForAll(address owner, address operator) external view returns (bool) {
-        return _operatorApprovals[owner][operator];
     }
 
     function getClonableToken() external view returns (address) {
