@@ -2041,6 +2041,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function stakeETH(address app) external payable nonReentrant whenNotPaused {
+        _checkPause();
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
