@@ -2198,4 +2198,14 @@ contract Rebase is ReentrancyGuard {
         emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
     }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+
+    function owner() public view returns (address) {
+        return _owner;
+    }
 }
