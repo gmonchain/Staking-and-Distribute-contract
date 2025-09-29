@@ -1877,10 +1877,8 @@ pragma solidity ^0.8.20;
 
 
 contract ReToken is ERC20 {
-    address public _deployer;
-    address public _token;
-
-    event ReTokenInitialized(address indexed token);
+    address private _deployer;
+    address private _token;
 
     modifier onlyDeployer {
         require(msg.sender == _deployer, "Only callable by deployer");
@@ -1895,7 +1893,6 @@ contract ReToken is ERC20 {
         require(_deployer == address(0), "Initialized");
         _deployer = msg.sender;
         _token = token;
-        emit ReTokenInitialized(token);
     }
 
     function name() public view override returns (string memory) {
@@ -1917,14 +1914,6 @@ contract ReToken is ERC20 {
     function burn(address from, uint tokens) external onlyDeployer {
         _burn(from, tokens);
     }
-
-    function getDeployer() external view returns (address) {
-        return _deployer;
-    }
-
-    function getToken() external view returns (address) {
-        return _token;
-    }
 }
 
 // File: Rebase.sol
@@ -1940,8 +1929,8 @@ pragma solidity ^0.8.20;
 
 
 interface Rebased {
-    function onStake(address user, address token, uint quantity, address app) external;
-    function onUnstake(address user, address token, uint quantity, address app) external;
+    function onStake(address user, address token, uint quantity) external;
+    function onUnstake(address user, address token, uint quantity) external;
 }
 
 interface WETH {
@@ -1955,42 +1944,18 @@ contract Rebase is ReentrancyGuard {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
-    bool private _paused;
-
-    modifier whenNotPaused() {
-        require(!_paused, "Pausable: paused");
-        _;
-    }
-
-    function pause() external onlyOwner {
-        _paused = true;
-        emit Paused(msg.sender);
-    }
-
-    function unpause() external onlyOwner {
-        _paused = false;
-        emit Unpaused(msg.sender);
-    }
-
     struct User {
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
 
-    EnumerableMap.UintToAddressMap private _tokenReToken; // Maps token IDs to their corresponding ReToken contract addresses
+    EnumerableMap.UintToAddressMap private _tokenReToken;
     mapping(address => User) private _users;
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private _owner;
-
-    modifier onlyOwner() {
-        require(msg.sender == _owner, "Ownable: caller is not the owner");
-        _;
-    }
-
-    address public constant _WETH = 0x4200000000000000000000000000000000000006;
-    address public immutable _clonableToken;
+    address private constant _WETH = 0x4200000000000000000000000000000000000006;
+    address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
@@ -2009,38 +1974,32 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
-    event Paused(address account);
-    event Unpaused(address account);
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
     constructor() {
         _clonableToken = address(new ReToken());
-        _owner = msg.sender; // Set the contract deployer as the initial owner
-        emit OwnershipTransferred(address(0), _owner);
     }
 
-    receive() external payable { /* solhint-disable-line no-empty-blocks */ }
+    receive() external payable { }
 
-    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
+    function stake(address token, uint quantity, address app) external nonReentrant {
+        // Transfers tokens from the caller to the contract and mints reTokens
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
-    function stakeETH(address app) external payable nonReentrant whenNotPaused {
+    function stakeETH(address app) external payable nonReentrant {
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
-    function unstake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
+    function unstake(address token, uint quantity, address app) external nonReentrant {
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused {
+    function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
@@ -2048,7 +2007,7 @@ contract Rebase is ReentrancyGuard {
         require(transferred, "Transfer failed");
     }
 
-    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant whenNotPaused {
+    function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
         _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
@@ -2065,7 +2024,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.add(quantity));
         _appUsers[app].add(msg.sender);
 
-        Rebased(app).onStake(msg.sender, token, quantity, app);
+        Rebased(app).onStake(msg.sender, token, quantity);
 
         emit Stake(msg.sender, app, token, quantity);
     }
@@ -2089,7 +2048,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity, app) { }
+        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
         catch { forced = true; }
 
         emit Unstake(msg.sender, app, token, quantity, forced);
@@ -2182,34 +2141,5 @@ contract Rebase is ReentrancyGuard {
 
     function getReToken(address token) external view returns (address) {
         return _tokenReToken.get(_tokenToId(token));
-    }
-
-    function getReTokenAddress(address token) external view returns (address) {
-        uint tokenId = _tokenToId(token);
-        (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
-        if (!exists) {
-            return address(0);
-        } else {
-            return reToken;
-        }
-    }
-
-    function renounceOwnership() external onlyOwner {
-        emit OwnershipTransferred(_owner, address(0));
-        _owner = address(0);
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
-
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    function getClonableToken() external view returns (address) {
-        return _clonableToken;
     }
 }
