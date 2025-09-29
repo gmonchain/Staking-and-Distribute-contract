@@ -1940,8 +1940,8 @@ pragma solidity ^0.8.20;
 
 
 interface Rebased {
-    function onStake(address user, address token, uint quantity) external;
-    function onUnstake(address user, address token, uint quantity) external;
+    function onStake(address user, address token, uint quantity, address app) external;
+    function onUnstake(address user, address token, uint quantity, address app) external;
 }
 
 interface WETH {
@@ -2065,7 +2065,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.add(quantity));
         _appUsers[app].add(msg.sender);
 
-        Rebased(app).onStake(msg.sender, token, quantity);
+        Rebased(app).onStake(msg.sender, token, quantity, app);
 
         emit Stake(msg.sender, app, token, quantity);
     }
@@ -2089,7 +2089,7 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.sub(quantity));
 
         bool forced = false;
-        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity) { }
+        try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity, app) { }
         catch { forced = true; }
 
         emit Unstake(msg.sender, app, token, quantity, forced);
