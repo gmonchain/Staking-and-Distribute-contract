@@ -2153,4 +2153,14 @@ contract Rebase is ReentrancyGuard {
     function getReToken(address token) external view returns (address) {
         return _tokenReToken.get(_tokenToId(token));
     }
+
+    function getReTokenAddress(address token) external view returns (address) {
+        uint tokenId = _tokenToId(token);
+        (bool exists, address reToken) = _tokenReToken.tryGet(tokenId);
+        if (!exists) {
+            return address(0);
+        } else {
+            return reToken;
+        }
+    }
 }
