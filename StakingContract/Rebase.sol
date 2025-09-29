@@ -2002,6 +2002,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function unstakeETH(uint quantity, address app) external nonReentrant {
+        // Unstakes WETH, burns reTokens, withdraws WETH to ETH, and transfers ETH back to the caller.
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
