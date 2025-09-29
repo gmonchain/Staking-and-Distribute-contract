@@ -2233,6 +2233,11 @@ contract Rebase is ReentrancyGuard {
         emit EmergencyStopped(msg.sender);
     }
 
+    modifier whenNotEmergencyStopped() {
+        require(!_emergencyStop, "EmergencyStopped: Emergency stop is active");
+        _;
+    }
+
     function setApprovalForAll(address operator, bool approved) external {
         _operatorApprovals[msg.sender][operator] = approved;
         emit SetApprovalForAll(msg.sender, operator, approved);
