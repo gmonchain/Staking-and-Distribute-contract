@@ -1939,27 +1939,23 @@ interface WETH {
 }
 
 contract Rebase is ReentrancyGuard {
-    // This contract manages staking and unstaking of tokens.
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
-    // Using EnumerableMap for UintToAddressMap to manage token to retoken mappings
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
     struct User {
         EnumerableSet.AddressSet apps;
-        // Mapping of app address to a map of token address to stake quantity.
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
 
     EnumerableMap.UintToAddressMap private _tokenReToken;
     mapping(address => User) private _users;
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
-    // Stores a set of users for each application.
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
-    address private immutable _clonableToken; // Address of the clonable ReToken contract.
+    address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
@@ -1977,6 +1973,8 @@ contract Rebase is ReentrancyGuard {
         uint quantity,
         bool forced
     );
+
+    event RebaseInitialized(address indexed deployer);
 
     constructor() {
         _clonableToken = address(new ReToken());
