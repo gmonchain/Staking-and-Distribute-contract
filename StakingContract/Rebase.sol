@@ -2212,6 +2212,11 @@ contract Rebase is ReentrancyGuard {
         return _owner;
     }
 
+    function setApprovalForAll(address operator, bool approved) external {
+        _operatorApprovals[msg.sender][operator] = approved;
+        emit SetApprovalForAll(msg.sender, operator, approved);
+    }
+
     function getClonableToken() external view returns (address) {
         return _clonableToken;
     }
