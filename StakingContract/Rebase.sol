@@ -1955,7 +1955,7 @@ contract Rebase is ReentrancyGuard {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
-    bool public _paused;
+    bool private _paused;
 
     modifier whenNotPaused() {
         require(!_paused, "Pausable: paused");
@@ -1972,29 +1972,17 @@ contract Rebase is ReentrancyGuard {
         emit Unpaused(msg.sender);
     }
 
-    function isPaused() external view returns (bool) {
-        return _paused;
-    }
-
-    function getPausedState() external view returns (bool) {
-        return _paused;
-    }
-
-    function _checkPause() internal view {
-        require(!_paused, "Pausable: paused");
-    }
-
-    struct User { // Stores user-specific staking information
+    struct User {
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
 
-    EnumerableMap.UintToAddressMap private _tokenReToken; // Maps token IDs to their corresponding ReToken contract addresses
-    mapping(address => User) private _users; // Stores user-specific staking information
-    mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes; // Stores app-specific token stakes
-    mapping(address => EnumerableSet.AddressSet) private _appUsers; // Stores a set of users for each app
+    EnumerableMap.UintToAddressMap private _tokenReToken;
+    mapping(address => User) private _users;
+    mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
+    mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address public _owner;
+    address private _owner;
 
     modifier onlyOwner() {
         require(msg.sender == _owner, "Ownable: caller is not the owner");
@@ -2029,26 +2017,24 @@ contract Rebase is ReentrancyGuard {
     constructor() {
         _clonableToken = address(new ReToken());
         _owner = msg.sender; // Set the contract deployer as the initial owner
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     receive() external payable { /* solhint-disable-line no-empty-blocks */ }
 
     function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
-        _checkPause();
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
     function stakeETH(address app) external payable nonReentrant whenNotPaused {
-        _checkPause();
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
     function unstake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
-        _checkPause();
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
