@@ -1959,7 +1959,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
     address private constant _WETH = 0x4200000000000000000000000000000000000006;
-    address private immutable _clonableToken;
+    address private immutable _clonableToken; // Address of the clonable ReToken contract.
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
