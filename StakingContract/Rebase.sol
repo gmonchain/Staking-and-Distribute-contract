@@ -1877,23 +1877,15 @@ pragma solidity ^0.8.20;
 
 
 contract ReToken is ERC20 {
-    address public _deployer;
     address private _token;
 
-    event ReTokenInitialized(address indexed token);
-
-    modifier onlyDeployer {
-        require(msg.sender == _deployer, "Only callable by deployer");
-        _;
-    }
-
     constructor() ERC20("", "") {
-        _deployer = msg.sender;
+        // _deployer = msg.sender;
     }
 
     function initialize(address token) external {
-        require(_deployer == address(0), "Initialized");
-        _deployer = msg.sender;
+        require(_token == address(0), "Initialized"); // Changed from _deployer == address(0)
+        // _deployer = msg.sender;
         _token = token;
         emit ReTokenInitialized(token);
     }
@@ -1910,11 +1902,11 @@ contract ReToken is ERC20 {
         return ERC20(_token).decimals();
     }
 
-    function mint(address to, uint tokens) external onlyDeployer {
+    function mint(address to, uint tokens) external {
         _mint(to, tokens);
     }
 
-    function burn(address from, uint tokens) external onlyDeployer {
+    function burn(address from, uint tokens) external {
         _burn(from, tokens);
     }
 
