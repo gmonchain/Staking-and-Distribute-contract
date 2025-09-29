@@ -1966,7 +1966,7 @@ contract Rebase is ReentrancyGuard {
         _paused = true;
     }
 
-    function unpause() external {
+    function unpause() external onlyOwner {
         _paused = false;
     }
 
