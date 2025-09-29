@@ -1982,7 +1982,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private _owner;
+    address public _owner;
 
     modifier onlyOwner() {
         require(msg.sender == _owner, "Ownable: caller is not the owner");
