@@ -2017,6 +2017,8 @@ contract Rebase is ReentrancyGuard {
 
     event EmergencyStopped(address account);
 
+    event EmergencyReleased(address account);
+
     constructor() {
         _clonableToken = address(new ReToken());
         _owner = msg.sender; // Set the contract deployer as the initial owner
@@ -2231,6 +2233,11 @@ contract Rebase is ReentrancyGuard {
     function emergencyStop() external onlyOwner {
         _emergencyStop = true;
         emit EmergencyStopped(msg.sender);
+    }
+
+    function releaseEmergencyStop() external onlyOwner {
+        _emergencyStop = false;
+        emit EmergencyReleased(msg.sender);
     }
 
     modifier whenNotEmergencyStopped() {
