@@ -1939,6 +1939,7 @@ interface WETH {
 }
 
 contract Rebase is ReentrancyGuard {
+    // This contract manages staking and unstaking of tokens.
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -1981,28 +1982,24 @@ contract Rebase is ReentrancyGuard {
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
-        // Transfers tokens from the caller to the contract and mints reTokens
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
     function stakeETH(address app) external payable nonReentrant {
-        // Deposits ETH, wraps it to WETH, and stakes it.
         WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
     function unstake(address token, uint quantity, address app) external nonReentrant {
-        // Unstakes tokens, burns reTokens, and transfers tokens back to the caller.
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
     function unstakeETH(uint quantity, address app) external nonReentrant {
-        // Unstakes WETH, burns reTokens, withdraws WETH to ETH, and transfers ETH back to the caller.
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
