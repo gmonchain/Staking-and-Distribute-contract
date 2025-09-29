@@ -1942,6 +1942,7 @@ contract Rebase is ReentrancyGuard {
     // This contract manages staking and unstaking of tokens.
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
+    // Using EnumerableMap for UintToAddressMap to manage token to retoken mappings
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
