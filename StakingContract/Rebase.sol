@@ -1955,7 +1955,7 @@ contract Rebase is ReentrancyGuard {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
-    bool private _paused;
+    bool public _paused;
 
     modifier whenNotPaused() {
         require(!_paused, "Pausable: paused");
