@@ -2012,6 +2012,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _stake(address app, address token, uint quantity) internal {
+        // This function handles the internal logic for staking tokens.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
@@ -2065,19 +2066,19 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _tokenToId(address token) internal pure returns (uint) {
-        return uint(uint160(token)); // Convert address to uint for token ID
+        return uint(uint160(token));
     }
 
     function getUserApps(address user) external view returns (address[] memory) {
-        return _users[user].apps.values(); // Returns all apps associated with the user
+        return _users[user].apps.values();
     }
 
     function getUserAppAt(address user, uint index) external view returns (address) {
-        return _users[user].apps.at(index); // Returns a specific app for a user at a given index
+        return _users[user].apps.at(index);
     }
 
     function getNumUserApps(address user) external view returns (uint) {
-        return _users[user].apps.length(); // Returns the number of apps a user has staked in
+        return _users[user].apps.length();
     }
 
     function getAppUsers(address app) external view returns (address[] memory) {
