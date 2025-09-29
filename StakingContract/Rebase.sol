@@ -1982,6 +1982,8 @@ contract Rebase is ReentrancyGuard {
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    mapping(address => uint) private _totalStaked;
+
     modifier onlyOwner() {
         require(msg.sender == _owner, "Ownable: caller is not the owner");
         _;
@@ -2069,6 +2071,8 @@ contract Rebase is ReentrancyGuard {
         _appTokenStakes[app].set(token, appStake.add(quantity));
         _appUsers[app].add(msg.sender);
 
+        _totalStaked[token] = _totalStaked[token].add(quantity);
+
         Rebased(app).onStake(msg.sender, token, quantity, app);
 
         emit Stake(msg.sender, app, token, quantity);
@@ -2091,6 +2095,8 @@ contract Rebase is ReentrancyGuard {
             user.appTokenStakes[app].set(token, userStake.sub(quantity));
         }
         _appTokenStakes[app].set(token, appStake.sub(quantity));
+
+        _totalStaked[token] = _totalStaked[token].sub(quantity);
 
         bool forced = false;
         try Rebased(app).onUnstake{gas: UNRESTAKE_GAS_LIMIT}(msg.sender, token, quantity, app) { }
@@ -2182,6 +2188,10 @@ contract Rebase is ReentrancyGuard {
 
     function getNumUserAppStakes(address user, address app) external view returns (uint) {
         return _users[user].appTokenStakes[app].length();
+    }
+
+    function getTotalStaked(address token) external view returns (uint) {
+        return _totalStaked[token];
     }
 
     function getReToken(address token) external view returns (address) {
