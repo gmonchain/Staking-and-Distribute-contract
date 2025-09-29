@@ -1979,7 +1979,7 @@ contract Rebase is ReentrancyGuard {
         _deployer = msg.sender;
     }
 
-    receive() external payable { }
+    receive() external payable { /* solhint-disable-line no-empty-blocks */ }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
