@@ -1984,6 +1984,8 @@ contract Rebase is ReentrancyGuard {
 
     address private _owner;
 
+    address private _pendingOwner;
+
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     modifier onlyOwner() {
@@ -2017,6 +2019,7 @@ contract Rebase is ReentrancyGuard {
     event SetApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
 
     constructor() {
         _clonableToken = address(new ReToken());
@@ -2202,10 +2205,19 @@ contract Rebase is ReentrancyGuard {
         _owner = address(0);
     }
 
-    function transferOwnership(address newOwner) external onlyOwner {
+    function transferOwnership(address newOwner) public onlyOwner {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
+        emit OwnershipTransferStarted(_owner, newOwner);
+        _pendingOwner = newOwner;
+    }
+
+    function transferOwnership(address newOwner, bool direct) external onlyOwner {
+        if (direct) {
+            emit OwnershipTransferred(_owner, newOwner);
+            _owner = newOwner;
+        } else {
+            transferOwnership(newOwner);
+        }
     }
 
     function owner() public view returns (address) {
