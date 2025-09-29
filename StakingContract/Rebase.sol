@@ -2024,7 +2024,7 @@ contract Rebase is ReentrancyGuard {
 
     receive() external payable { /* solhint-disable-line no-empty-blocks */ }
 
-    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused {
+    function stake(address token, uint quantity, address app) external nonReentrant whenNotPaused whenNotEmergencyStopped {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
