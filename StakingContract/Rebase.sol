@@ -2012,6 +2012,8 @@ contract Rebase is ReentrancyGuard {
     event Paused(address account);
     event Unpaused(address account);
 
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
     constructor() {
         _clonableToken = address(new ReToken());
         _deployer = msg.sender;
@@ -2190,5 +2192,10 @@ contract Rebase is ReentrancyGuard {
         } else {
             return reToken;
         }
+    }
+
+    function renounceOwnership() external onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
     }
 }
