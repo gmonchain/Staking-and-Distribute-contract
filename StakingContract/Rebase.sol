@@ -1914,6 +1914,10 @@ contract ReToken is ERC20 {
     function burn(address from, uint tokens) external onlyDeployer {
         _burn(from, tokens);
     }
+
+    function getDeployer() external view returns (address) {
+        return _deployer;
+    }
 }
 
 // File: Rebase.sol
