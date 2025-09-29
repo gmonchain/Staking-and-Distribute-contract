@@ -2008,7 +2008,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
-        _unstake(fromApp, token, quantity);
+        _unstake(fromApp, token, quantity); // Unstake from the original application
         _stake(toApp, token, quantity);
     }
 
