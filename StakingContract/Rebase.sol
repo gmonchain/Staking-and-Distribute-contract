@@ -1954,7 +1954,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private constant _WETH = 0x4200000000000000000000000000000000000006; // Precompiled contract address for WETH on Base.
+    address private constant _WETH = 0x4200000000000000000000000000000000000006;
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
@@ -1981,6 +1981,7 @@ contract Rebase is ReentrancyGuard {
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
+        // Transfers tokens from the caller to the contract and mints reTokens for the user.
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
         _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
