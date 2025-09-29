@@ -2208,4 +2208,8 @@ contract Rebase is ReentrancyGuard {
     function owner() public view returns (address) {
         return _owner;
     }
+
+    function getClonableToken() external view returns (address) {
+        return _clonableToken;
+    }
 }
