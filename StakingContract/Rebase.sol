@@ -1992,7 +1992,7 @@ contract Rebase is ReentrancyGuard {
     address public constant _WETH = 0x4200000000000000000000000000000000000006;
     address public immutable _clonableToken;
 
-    uint private constant UNRESTAKE_GAS_LIMIT = 1000000;
+    uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
     event Stake (
         address indexed user,
