@@ -2007,6 +2007,9 @@ contract Rebase is ReentrancyGuard {
         bool forced
     );
 
+    event Paused(address account);
+    event Unpaused(address account);
+
     constructor() {
         _clonableToken = address(new ReToken());
         _deployer = msg.sender;
