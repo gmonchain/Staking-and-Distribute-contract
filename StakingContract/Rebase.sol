@@ -1983,7 +1983,7 @@ contract Rebase is ReentrancyGuard {
 
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
-        _getReToken(token).mint(msg.sender, quantity);
+        _getReToken(token).mint(msg.sender, quantity); // Mint reTokens to the staker
         _stake(app, token, quantity);
     }
 
