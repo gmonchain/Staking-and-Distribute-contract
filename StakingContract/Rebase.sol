@@ -2224,6 +2224,14 @@ contract Rebase is ReentrancyGuard {
         return _owner;
     }
 
+    function acceptOwnership() external {
+        require(msg.sender == _pendingOwner, "Ownable2Step: caller is not the pending owner");
+        address oldOwner = _owner;
+        _owner = _pendingOwner;
+        _pendingOwner = address(0);
+        emit OwnershipTransferred(oldOwner, _owner);
+    }
+
     function setApprovalForAll(address operator, bool approved) external {
         _operatorApprovals[msg.sender][operator] = approved;
         emit SetApprovalForAll(msg.sender, operator, approved);
