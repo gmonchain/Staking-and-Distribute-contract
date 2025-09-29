@@ -1966,6 +1966,10 @@ contract Rebase is ReentrancyGuard {
         _paused = true;
     }
 
+    function unpause() external {
+        _paused = false;
+    }
+
     struct User {
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
