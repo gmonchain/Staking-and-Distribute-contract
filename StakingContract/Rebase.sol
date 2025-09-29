@@ -1978,6 +1978,8 @@ contract Rebase is ReentrancyGuard {
 
     address private _pendingOwner;
 
+    bool private _emergencyStop;
+
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     modifier onlyOwner() {
@@ -2012,6 +2014,8 @@ contract Rebase is ReentrancyGuard {
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
+
+    event EmergencyStopped(address account);
 
     constructor() {
         _clonableToken = address(new ReToken());
@@ -2222,6 +2226,11 @@ contract Rebase is ReentrancyGuard {
         _owner = _pendingOwner;
         _pendingOwner = address(0);
         emit OwnershipTransferred(oldOwner, _owner);
+    }
+
+    function emergencyStop() external onlyOwner {
+        _emergencyStop = true;
+        emit EmergencyStopped(msg.sender);
     }
 
     function setApprovalForAll(address operator, bool approved) external {
