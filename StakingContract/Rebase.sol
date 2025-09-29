@@ -1954,7 +1954,7 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
-    address private constant _WETH = 0x4200000000000000000000000000000000000006;
+    address private constant _WETH = 0x4200000000000000000000000000000000000006; // Precompiled contract address for WETH on Base.
     address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
@@ -1976,45 +1976,44 @@ contract Rebase is ReentrancyGuard {
 
     constructor() {
         _clonableToken = address(new ReToken());
-        // Initialize the clonable token for Rebase
     }
 
     receive() external payable { }
 
     function stake(address token, uint quantity, address app) external nonReentrant {
         require(ERC20(token).transferFrom(msg.sender, address(this), quantity), "Unable to transfer token");
-        _getReToken(token).mint(msg.sender, quantity); // Mint reTokens to the staker
+        _getReToken(token).mint(msg.sender, quantity);
         _stake(app, token, quantity);
     }
 
     function stakeETH(address app) external payable nonReentrant {
-        WETH(_WETH).deposit{value: msg.value}(); // Deposit ETH to WETH contract
+        WETH(_WETH).deposit{value: msg.value}();
         _getReToken(_WETH).mint(msg.sender, msg.value);
         _stake(app, _WETH, msg.value);
     }
 
     function unstake(address token, uint quantity, address app) external nonReentrant {
-        _unstake(app, token, quantity); // Internal unstake logic
+        _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
     function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
-        _getReToken(_WETH).burn(msg.sender, quantity); // Burn reTokens from staker
+        _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
         (bool transferred,) = msg.sender.call{value: quantity}("");
         require(transferred, "Transfer failed");
     }
 
     function restake(address token, uint quantity, address fromApp, address toApp) external nonReentrant {
-        _unstake(fromApp, token, quantity); // Unstake from the original application
+        _unstake(fromApp, token, quantity);
         _stake(toApp, token, quantity);
     }
 
     function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        (,uint userStake) = user.appTokenStakes[app].tryGet(token); // Retrieve user's stake for the given app and token
+        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
 
         require(quantity > 0, "Invalid token quantity");
