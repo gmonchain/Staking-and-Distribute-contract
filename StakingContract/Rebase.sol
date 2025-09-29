@@ -1877,7 +1877,7 @@ pragma solidity ^0.8.20;
 
 
 contract ReToken is ERC20 {
-    address private _deployer;
+    address public _deployer;
     address private _token;
 
     modifier onlyDeployer {
