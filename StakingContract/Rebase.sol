@@ -1981,7 +1981,7 @@ contract Rebase is ReentrancyGuard {
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
     }
 
-    EnumerableMap.UintToAddressMap private _tokenReToken;
+    EnumerableMap.UintToAddressMap private _tokenReToken; // Maps token IDs to their corresponding ReToken contract addresses
     mapping(address => User) private _users;
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
