@@ -1918,6 +1918,10 @@ contract ReToken is ERC20 {
     function getDeployer() external view returns (address) {
         return _deployer;
     }
+
+    function getToken() external view returns (address) {
+        return _token;
+    }
 }
 
 // File: Rebase.sol
