@@ -609,6 +609,7 @@ pragma solidity ^0.8.0;
  * now has built in overflow checking.
  */
 library SafeMath {
+    uint256 internal constant MAX_UINT256 = type(uint256).max;
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
      *
