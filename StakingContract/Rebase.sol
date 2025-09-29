@@ -2014,7 +2014,7 @@ contract Rebase is ReentrancyGuard {
 
     function _stake(address app, address token, uint quantity) internal {
         User storage user = _users[msg.sender];
-        (,uint userStake) = user.appTokenStakes[app].tryGet(token);
+        (,uint userStake) = user.appTokenStakes[app].tryGet(token); // Retrieve user's stake for the given app and token
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
 
         require(quantity > 0, "Invalid token quantity");
