@@ -1980,6 +1980,10 @@ contract Rebase is ReentrancyGuard {
         return _paused;
     }
 
+    function _checkPause() internal view {
+        require(!_paused, "Pausable: paused");
+    }
+
     struct User { // Stores user-specific staking information
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
