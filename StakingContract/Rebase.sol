@@ -1959,6 +1959,8 @@ contract Rebase is ReentrancyGuard {
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
+    uint256 public newVariable;
+
     event Stake (
         address indexed user,
         address indexed app,
