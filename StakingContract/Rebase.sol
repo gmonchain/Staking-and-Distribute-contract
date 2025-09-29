@@ -1984,6 +1984,8 @@ contract Rebase is ReentrancyGuard {
 
     address private _owner;
 
+    mapping(address => mapping(address => bool)) private _operatorApprovals;
+
     modifier onlyOwner() {
         require(msg.sender == _owner, "Ownable: caller is not the owner");
         _;
