@@ -2001,7 +2001,7 @@ contract Rebase is ReentrancyGuard {
 
     function unstakeETH(uint quantity, address app) external nonReentrant {
         _unstake(app, _WETH, quantity);
-        _getReToken(_WETH).burn(msg.sender, quantity);
+        _getReToken(_WETH).burn(msg.sender, quantity); // Burn reTokens from staker
         WETH(_WETH).withdraw(quantity);
         (bool transferred,) = msg.sender.call{value: quantity}("");
         require(transferred, "Transfer failed");
