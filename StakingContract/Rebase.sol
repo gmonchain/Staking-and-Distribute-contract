@@ -2021,7 +2021,7 @@ contract Rebase is ReentrancyGuard {
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
     }
 
-    function unstakeETH(uint quantity, address app) external nonReentrant {
+    function unstakeETH(uint quantity, address app) external nonReentrant whenNotPaused {
         _unstake(app, _WETH, quantity);
         _getReToken(_WETH).burn(msg.sender, quantity);
         WETH(_WETH).withdraw(quantity);
