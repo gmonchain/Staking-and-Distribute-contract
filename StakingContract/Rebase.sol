@@ -1980,8 +1980,15 @@ contract Rebase is ReentrancyGuard {
     mapping(address => EnumerableMap.AddressToUintMap) private _appTokenStakes;
     mapping(address => EnumerableSet.AddressSet) private _appUsers;
 
+    address private _owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == _owner, "Ownable: caller is not the owner");
+        _;
+    }
+
     address private constant _WETH = 0x4200000000000000000000000000000000000006; // WETH address on Optimism
-    address private immutable _clonableToken; // Address of the clonable ReToken contract
+    address private immutable _clonableToken;
 
     uint public constant UNRESTAKE_GAS_LIMIT = 1000000;
 
@@ -2003,6 +2010,7 @@ contract Rebase is ReentrancyGuard {
     constructor() {
         _clonableToken = address(new ReToken());
         _deployer = msg.sender;
+        _owner = msg.sender; // Set the contract deployer as the initial owner
     }
 
     receive() external payable { /* solhint-disable-line no-empty-blocks */ }
