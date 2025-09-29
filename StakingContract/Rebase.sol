@@ -1955,6 +1955,17 @@ contract Rebase is ReentrancyGuard {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using SafeMath for uint256;
 
+    bool private _paused;
+
+    modifier whenNotPaused() {
+        require(!_paused, "Pausable: paused");
+        _;
+    }
+
+    function pause() external {
+        _paused = true;
+    }
+
     struct User {
         EnumerableSet.AddressSet apps;
         mapping(address => EnumerableMap.AddressToUintMap) appTokenStakes;
