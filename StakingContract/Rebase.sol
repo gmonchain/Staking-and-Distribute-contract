@@ -1995,6 +1995,7 @@ contract Rebase is ReentrancyGuard {
     }
 
     function unstake(address token, uint quantity, address app) external nonReentrant {
+        // Unstakes tokens, burns reTokens, and transfers tokens back to the caller.
         _unstake(app, token, quantity);
         _getReToken(token).burn(msg.sender, quantity);
         require(ERC20(token).transfer(msg.sender, quantity), "Unable to transfer token");
