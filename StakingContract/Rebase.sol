@@ -1976,6 +1976,7 @@ contract Rebase is ReentrancyGuard {
 
     constructor() {
         _clonableToken = address(new ReToken());
+        // Initialize the clonable token for Rebase
     }
 
     receive() external payable { }
@@ -2012,7 +2013,6 @@ contract Rebase is ReentrancyGuard {
     }
 
     function _stake(address app, address token, uint quantity) internal {
-        // This function handles the internal logic for staking tokens.
         User storage user = _users[msg.sender];
         (,uint userStake) = user.appTokenStakes[app].tryGet(token);
         (,uint appStake) = _appTokenStakes[app].tryGet(token);
