@@ -1,6 +1,6 @@
 # Staking and Distribution Contracts
 
-This repository contains two core Solidity smart contracts: `Rebase.sol` (Staking Contract) and `Splitter.sol` (Distribution Contract), along with a helper contract `StakeTracker.sol`. These contracts work together to enable users to stake various ERC20 tokens (and ETH) and receive rewards distributed by authorized entities.
+This repository contains two core Solidity smart contracts: `Rebase.sol` (Staking Contract) and `Splitter.sol` (Distribution Contract), along with a helper contract `StakeTracker.sol`. These contracts work together to enable users to stake various ERC20 tokens (and ETH) and receive rewards distributed by authorized entities..
 
 ## Mechanism Explanation
 
